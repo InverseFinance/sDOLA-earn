@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { Header } from '@/components/Header';
 import { StatsBar } from '@/components/StatsBar';
 import { StakingCard } from '@/components/StakingCard';
@@ -22,8 +23,22 @@ export const getServerSideProps: GetServerSideProps<{ data: StakingData | null }
 };
 
 export default function Home({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const title = 'sDOLA Earn - Yield Bearing Stablecoin | Inverse Finance';
+  const description = 'Earn decentralized organic yield by depositing DOLA into sDOLA. No lockup, no minimum deposit. Powered by Inverse Finance.';
+
   return (
     <>
+      <Head>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content="sDOLA, DOLA, stablecoin, yield, staking, DeFi, Inverse Finance, decentralized finance, earn, ERC-4626" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content="https://sdola.inverse.finance" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <link rel="canonical" href="https://sdola.inverse.finance" />
+      </Head>
       <Header />
       <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-5">
         <div className="text-center space-y-1">
