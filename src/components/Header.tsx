@@ -10,7 +10,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-0 bg-accent/20 rounded-full blur-md" />
-            <Image alt="sDOLA" src="sDOLAx128.png?a" className="relative w-9 h-9 rounded-full" />
+            <Image alt="sDOLA" src="/sDOLAx128.png" width={36} height={36} className="relative w-9 h-9 rounded-full" />
           </div>
           <span className="font-semibold text-base tracking-tight">sDOLA Earn</span>
         </div>

@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { Header } from '@/components/Header';
 import { StatsBar } from '@/components/StatsBar';
 import { StakingCard } from '@/components/StakingCard';
+import { Footer } from '@/components/Footer';
 import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 
 interface StakingData {
@@ -63,6 +64,7 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
           <StakingCard />
         </div>
       </main>
+      <Footer />
     </>
   );
 }
