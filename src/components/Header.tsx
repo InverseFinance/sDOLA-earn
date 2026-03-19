@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image'
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export function Header() {
@@ -9,7 +10,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-0 bg-accent/20 rounded-full blur-md" />
-            <img src="sDOLAx128.png?a" className="relative w-9 h-9 rounded-full" />
+            <Image alt="sDOLA" src="sDOLAx128.png?a" className="relative w-9 h-9 rounded-full" />
           </div>
           <span className="font-semibold text-base tracking-tight">sDOLA Earn</span>
         </div>
