@@ -177,17 +177,20 @@ export function StakingCard() {
   const btn = getButtonConfig();
 
   return (
-    <div className="bg-card-bg border border-card-border rounded-2xl p-5 sm:p-6">
+    <div className="relative bg-card-bg/80 border border-white/[0.06] rounded-2xl p-5 sm:p-6 backdrop-blur-sm">
+      {/* Subtle top glow */}
+      <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+
       {/* Tabs */}
-      <div className="flex gap-1 bg-background rounded-xl p-1 mb-5">
+      <div className="flex gap-1 bg-surface rounded-xl p-1 mb-6">
         {(['stake', 'unstake'] as Tab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => { setActiveTab(tab); setAmount(''); }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               activeTab === tab
-                ? 'bg-accent text-white'
-                : 'text-text-muted hover:text-foreground'
+                ? 'bg-accent text-white shadow-[0_0_20px_rgba(124,58,237,0.2)]'
+                : 'text-text-muted hover:text-text-secondary'
             }`}
           >
             {tab === 'stake' ? 'Deposit' : 'Withdraw'}
@@ -198,46 +201,46 @@ export function StakingCard() {
       {/* Balance */}
       {isConnected && (
         <div className="flex justify-between items-center mb-3 text-sm">
-          <span className="text-text-muted">Balance</span>
-          <button onClick={handleMax} className="text-text-muted hover:text-accent transition-colors font-mono">
+          <span className="text-text-muted text-xs uppercase tracking-wider">Balance</span>
+          <button onClick={handleMax} className="text-text-secondary hover:text-accent transition-colors duration-200 font-mono text-sm">
             {balance !== undefined ? formatBalance(balance) : '0'} {balanceLabel}
           </button>
         </div>
       )}
 
       {/* Input */}
-      <div className="relative mb-4">
+      <div className="relative mb-5 group">
         <input
           type="number"
           placeholder="0.0"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full bg-background border border-card-border rounded-xl px-4 py-4 text-xl font-mono text-foreground placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
+          className="w-full bg-surface border border-white/[0.06] rounded-xl px-4 py-4 text-xl font-mono text-foreground placeholder:text-text-muted/50 focus:outline-none focus:border-accent/40 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.08)] transition-all duration-200"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
           <button
             onClick={handleMax}
-            className="text-accent text-xs font-semibold hover:text-accent-hover transition-colors px-2 py-1"
+            className="text-accent text-[11px] font-bold uppercase tracking-wider hover:text-accent-hover transition-colors duration-200 px-2 py-1 rounded-md hover:bg-accent/10"
           >
-            MAX
+            Max
           </button>
-          <span className="text-text-muted text-sm">{balanceLabel}</span>
+          <span className="text-text-muted/60 text-xs font-medium">{balanceLabel}</span>
         </div>
       </div>
 
       {/* Preview */}
       {parsedAmount > 0n && (
-        <div className="bg-background rounded-xl px-4 py-3 mb-4 space-y-1">
+        <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
           {activeTab === 'stake' && previewShares !== undefined && (
             <div className="flex justify-between text-sm">
               <span className="text-text-muted">You will receive</span>
-              <span className="font-mono">{formatBalance(previewShares)} sDOLA</span>
+              <span className="font-mono text-foreground">{formatBalance(previewShares)} sDOLA</span>
             </div>
           )}
           {activeTab === 'unstake' && previewAssets !== undefined && (
             <div className="flex justify-between text-sm">
               <span className="text-text-muted">You will receive</span>
-              <span className="font-mono">{formatBalance(previewAssets)} DOLA</span>
+              <span className="font-mono text-foreground">{formatBalance(previewAssets)} DOLA</span>
             </div>
           )}
         </div>
@@ -247,10 +250,10 @@ export function StakingCard() {
       <button
         onClick={btn.onClick}
         disabled={btn.disabled}
-        className={`w-full py-4 rounded-xl font-semibold text-base transition-colors ${
+        className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${
           btn.disabled
-            ? 'bg-card-border text-text-muted cursor-not-allowed'
-            : 'bg-accent hover:bg-accent-hover text-white cursor-pointer'
+            ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
+            : 'bg-accent hover:bg-accent-hover text-white cursor-pointer shadow-[0_0_24px_rgba(124,58,237,0.2)] hover:shadow-[0_0_32px_rgba(124,58,237,0.3)]'
         }`}
       >
         {isPending && !btn.disabled && (

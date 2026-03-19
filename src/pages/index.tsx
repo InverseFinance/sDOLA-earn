@@ -40,21 +40,28 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
         <link rel="canonical" href="https://sdola.inverse.finance" />
       </Head>
       <Header />
-      <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-5">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold">sDOLA Yield Bearing Stablecoin</h1>
+      <main className="relative flex-1 px-4 py-10 max-w-lg mx-auto w-full space-y-6">
+        {/* Ambient background glow */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-accent/[0.06] rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="relative text-center space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">sDOLA Yield Bearing Stablecoin</h1>
           <p className="text-text-muted text-sm">Decentralized Organic Yield without lockup</p>
         </div>
-        {data ? (
-          <StatsBar data={data} />
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-card-bg border border-card-border rounded-xl p-4 h-20 animate-pulse" />
-            ))}
-          </div>
-        )}
-        <StakingCard />
+        <div className="relative">
+          {data ? (
+            <StatsBar data={data} />
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="bg-card-bg/80 border border-white/[0.06] rounded-2xl p-4 h-20 animate-pulse" />
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <StakingCard />
+        </div>
       </main>
     </>
   );

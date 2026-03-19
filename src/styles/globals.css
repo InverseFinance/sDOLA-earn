@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0f;
-  --foreground: #e4e4e7;
-  --card-bg: #13131a;
-  --card-border: #1e1e2e;
+  --background: #08090d;
+  --foreground: #e8e8ed;
+  --card-bg: #10111a;
+  --card-border: #1a1b2e;
   --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-muted: rgba(124, 58, 237, 0.15);
-  --success: #22c55e;
-  --text-muted: #71717a;
+  --accent-hover: #8b5cf6;
+  --accent-muted: rgba(124, 58, 237, 0.12);
+  --accent-glow: rgba(124, 58, 237, 0.25);
+  --success: #34d399;
+  --text-muted: #6b6b80;
+  --text-secondary: #9d9db5;
+  --surface: #0d0e16;
 }
 
 @theme inline {
@@ -20,8 +23,11 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-muted: var(--accent-muted);
+  --color-accent-glow: var(--accent-glow);
   --color-success: var(--success);
   --color-text-muted: var(--text-muted);
+  --color-text-secondary: var(--text-secondary);
+  --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -30,6 +36,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Remove number input spinners */
@@ -40,4 +48,10 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(124, 58, 237, 0.3);
+  color: #fff;
 }
