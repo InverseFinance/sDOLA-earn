@@ -1,23 +1,20 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import {
-  arbitrum,
-  base,
   mainnet,
-  optimism,
-  polygon,
-  sepolia,
 } from 'wagmi/chains';
+import { fallback, http, injected, unstable_connector } from 'wagmi';
 
 export const config = getDefaultConfig({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'sDOLA Earn',
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'placeholder',
   chains: [
     mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   ssr: true,
+    transports: {
+    [mainnet.id]: fallback([
+      unstable_connector(injected),
+      http(),
+    ]),
+  },
 });
