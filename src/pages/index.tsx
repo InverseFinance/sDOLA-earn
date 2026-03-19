@@ -1,9 +1,7 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { StatsBar } from '@/components/StatsBar';
 import { StakingCard } from '@/components/StakingCard';
+import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 
 interface StakingData {
   apy: number;
@@ -12,16 +10,18 @@ interface StakingData {
   tvlUsd: number;
 }
 
-export default function Home() {
-  const [data, setData] = useState<StakingData | null>(null);
+export const getServerSideProps: GetServerSideProps<{ data: StakingData | null }> = async () => {
+  try {
+    const res = await fetch('https://www.inverse.finance/api/dola-staking');
+    const data: StakingData = await res.json();
+    return { props: { data } };
+  } catch (e) {
+    console.error(e);
+    return { props: { data: null } };
+  }
+};
 
-  useEffect(() => {
-    fetch('https://www.inverse.finance/api/dola-staking')
-      .then((res) => res.json())
-      .then(setData)
-      .catch(console.error);
-  }, []);
-
+export default function Home({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
       <Header />

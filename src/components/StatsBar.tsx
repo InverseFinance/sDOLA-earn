@@ -23,14 +23,14 @@ function StatCard({ label, value, sublabel }: { label: string; value: string; su
 
 export function StatsBar({ data }: StatsBarProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 gap-2">
       <StatCard label="Current APY" value={formatApy(data.apy)} />
-      <StatCard
+      {/* <StatCard
         label="Projected APY"
         value={formatApy(data.projectedApy)}
         sublabel="Next Thursday UTC"
-      />
-      <StatCard label="30d APY" value={formatApy(data.apy30d)} />
+      /> */}
+      {/* <StatCard label="30d APY" value={formatApy(data.apy30d)} /> */}
       <StatCard label="TVL" value={formatUsd(data.tvlUsd)} />
     </div>
   );
