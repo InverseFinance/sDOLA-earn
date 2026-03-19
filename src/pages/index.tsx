@@ -28,7 +28,7 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
   const description = 'Earn decentralized organic yield by depositing DOLA into sDOLA. No lockup, no minimum deposit. Powered by Inverse Finance.';
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -65,6 +65,6 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
