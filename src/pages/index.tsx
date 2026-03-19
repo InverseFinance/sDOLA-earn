@@ -27,8 +27,8 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
       <Header />
       <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-5">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold">Stake DOLA</h1>
-          <p className="text-text-muted text-sm">Earn yield by staking DOLA into sDOLA</p>
+          <h1 className="text-2xl font-bold">sDOLA Yield Bearing Stablecoin</h1>
+          <p className="text-text-muted text-sm">Decentralized Organic Yield without lockup</p>
         </div>
         {data ? (
           <StatsBar data={data} />

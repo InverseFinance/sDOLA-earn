@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseUnits, maxUint256 } from 'viem';
+import { parseUnits, formatUnits, maxUint256 } from 'viem';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { DOLA_ADDRESS, SDOLA_ADDRESS, ERC20_ABI, ERC4626_ABI } from '@/lib/contracts';
 import { formatBalance } from '@/lib/utils';
@@ -125,7 +125,7 @@ export function StakingCard() {
 
   function handleMax() {
     if (balance) {
-      setAmount(formatBalance(balance, 18, 18));
+      setAmount(formatUnits(balance, 18));
     }
   }
 
@@ -166,12 +166,12 @@ export function StakingCard() {
     if (activeTab === 'stake') {
       if (isApproving || isApproveConfirming) return { text: 'Approving...', onClick: () => {}, disabled: true };
       if (needsApproval) return { text: 'Approve DOLA', onClick: handleApprove, disabled: false };
-      if (isDepositing || isDepositConfirming) return { text: 'Staking...', onClick: () => {}, disabled: true };
-      return { text: 'Stake DOLA', onClick: handleDeposit, disabled: false };
+      if (isDepositing || isDepositConfirming) return { text: 'Depositing...', onClick: () => {}, disabled: true };
+      return { text: 'Deposit DOLA', onClick: handleDeposit, disabled: false };
     }
 
-    if (isRedeeming || isRedeemConfirming) return { text: 'Unstaking...', onClick: () => {}, disabled: true };
-    return { text: 'Unstake sDOLA', onClick: handleRedeem, disabled: false };
+    if (isRedeeming || isRedeemConfirming) return { text: 'Withdrawing...', onClick: () => {}, disabled: true };
+    return { text: 'Withdraw sDOLA', onClick: handleRedeem, disabled: false };
   }
 
   const btn = getButtonConfig();
@@ -190,7 +190,7 @@ export function StakingCard() {
                 : 'text-text-muted hover:text-foreground'
             }`}
           >
-            {tab === 'stake' ? 'Stake' : 'Unstake'}
+            {tab === 'stake' ? 'Deposit' : 'Withdraw'}
           </button>
         ))}
       </div>
