@@ -4,7 +4,7 @@ import {
 } from 'wagmi/chains';
 import { fallback, http, injected, unstable_connector, createConfig } from 'wagmi';
 import binanceWallet from '@binance/w3w-rainbow-connector-v2'
-import { injectedWallet, baseAccount, walletConnectWallet, rabbyWallet, metaMaskWallet } from '@rainbow-me/rainbowkit/wallets'
+import { injectedWallet, baseAccount, walletConnectWallet, rabbyWallet } from '@rainbow-me/rainbowkit/wallets'
 
 const recommendedWalletList: WalletList = [
   {
@@ -14,7 +14,6 @@ const recommendedWalletList: WalletList = [
       binanceWallet,
       baseAccount,
       rabbyWallet,
-      metaMaskWallet,
       walletConnectWallet,
     ],
   },
