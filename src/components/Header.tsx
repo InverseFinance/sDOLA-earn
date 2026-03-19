@@ -11,8 +11,8 @@ export function Header() {
           <span className="font-semibold text-lg">sDOLA</span>
         </div>
         <ConnectButton
-          accountStatus={{ smallScreen: 'avatar', largeScreen: 'full' }}
-          chainStatus={{ smallScreen: 'icon', largeScreen: 'full' }}
+          accountStatus={{ smallScreen: 'address', largeScreen: 'full' }}
+          chainStatus={'icon'}
           showBalance={{ smallScreen: false, largeScreen: true }}
         />
       </div>
