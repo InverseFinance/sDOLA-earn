@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    esmExternals: 'loose',
-  },
-  transpilePackages: ['@vanilla-extract/sprinkles'],
   typescript: {
     ignoreBuildErrors: true,
   },
