@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    esmExternals: 'loose',
+  },
+  transpilePackages: [
+    '@vanilla-extract/sprinkles',
+    '@vanilla-extract/css',
+    '@rainbow-me/rainbowkit',
+  ],
   typescript: {
     ignoreBuildErrors: true,
   },
