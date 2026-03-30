@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import type { SupportedToken } from '@/lib/tokens';
 import { formatUsd } from '@/lib/utils';
 
@@ -13,7 +13,13 @@ interface TokenSelectorProps {
 
 export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSelectorProps) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = tokens.filter(t => {
+    const r = new RegExp(search, 'i');
+    return r.test(t.symbol) || r.test(t.name);
+  })
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -41,7 +47,8 @@ export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSel
 
       {open && (
         <div className="absolute z-50 top-full mt-2 right-0 w-64 max-h-72 overflow-y-auto bg-card-bg border border-white/[0.06] rounded-xl shadow-2xl backdrop-blur-sm">
-          {tokens.map((token) => (
+          <input className="h-8 w-full px-3 py-2 focus:outline-2" placeholder="Search a token" name="tokenSearch" value={search} onChange={v => setSearch(v.target.value)} />
+          {filtered.map((token) => (
             <button
               key={token.address}
               onClick={() => { onSelect(token); setOpen(false); }}
