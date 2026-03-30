@@ -372,6 +372,13 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
         ))}
       </div>
 
+      <SavingsOpportunites
+        apy={stakingData.apy}
+        totalAssets={stakingData.totalAssets}
+        tokens={sortedTokens}
+        onSelectToken={(t) => { setSelectedToken(t); setAmount(''); setActiveTab('stake'); }}
+      />
+
       {/* Balance */}
       {isConnected && (
         <div className="flex justify-between items-center mb-3 text-sm">
@@ -418,7 +425,6 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
       {/* Preview — Deposit */}
       {parsedAmount > 0n && activeTab === 'stake' && (
         <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
-          <SavingsOpportunites apy={stakingData.apy} totalAssets={stakingData.totalAssets} tokens={sortedTokens} />
           {isDola(selectedToken.address) ? (
             previewShares !== undefined ? (
               <div className="flex justify-between text-sm">
