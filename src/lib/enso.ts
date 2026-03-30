@@ -27,7 +27,7 @@ export async function fetchEnsoRoute(params: {
     tokenIn: [params.tokenIn],
     tokenOut: [SDOLA_ADDRESS],
     amountIn: [params.amountIn],
-    slippage: params.slippage ?? '300',
+    slippage: params.slippage ?? '10',
   });
 }
 

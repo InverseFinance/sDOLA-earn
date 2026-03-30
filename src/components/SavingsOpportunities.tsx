@@ -41,12 +41,12 @@ export const SavingsOpportunites = ({
     dolaPriceUsd?: number;
     onSelectToken?: (token: SupportedToken) => void;
 }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const { estimatedNewApy, totalIldeUsd, estimatedYearlyGain } = estimateOppurtunities({ apy, totalAssets, tokens, dolaPriceUsd });
 
     if (totalIldeUsd <= 0) return null;
 
-    const idleTokens = tokens.filter(t => t.isIdleStable && t.usd > 0);
+    const idleTokens = tokens.filter(t => t.isIdleStable && t.usd >= 1);
 
     return (
         <div className="mb-3 border-b border-white/[0.04] pb-3 ">
@@ -61,11 +61,11 @@ export const SavingsOpportunites = ({
                     </span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-text-muted text-xs">
+                    {/* <span className="text-text-muted text-xs">
                         Est. APY after deposit: <span className="text-accent font-mono font-semibold">{formatApy(estimatedNewApy)}</span>
-                    </span>
+                    </span> */}
                     <span className="text-green-400 font-mono font-semibold text-xs">
-                        (+{formatUsd(estimatedYearlyGain)}/yr)
+                        You could earn ~{formatUsd(estimatedYearlyGain)} a year
                     </span>
                     <span className="text-text-muted text-[10px]">{isExpanded ? '▲' : '▼'}</span>
                 </div>
@@ -74,7 +74,8 @@ export const SavingsOpportunites = ({
             {isExpanded && (
                 <div className="mt-2 space-y-1.5 pt-2">
                     {idleTokens.map(token => {
-                        const tokenYearlyGain = estimatedNewApy / 100 * token.usd;
+                        const estimates = estimateOppurtunities({ apy, totalAssets, tokens: [token], dolaPriceUsd }) 
+                        const tokenYearlyGain = estimates.estimatedNewApy / 100 * token.usd;
                         return (
                             <button
                                 key={token.address}
@@ -92,6 +93,41 @@ export const SavingsOpportunites = ({
                     })}
                 </div>
             )}
+        </div>
+    );
+}
+
+export const SelectedOpportunity = ({
+    token,
+    apy,
+    totalAssets,
+    dolaPriceUsd,
+    amount,
+}: {
+    token: SupportedToken
+    apy: number
+    totalAssets: number
+    dolaPriceUsd: number
+    amount: number
+}) => {
+    if (!amount || amount <= 0) return null;
+
+    const depositUsd = amount; // stablecoins: 1 token ≈ $1
+    const depositDola = dolaPriceUsd ? depositUsd / dolaPriceUsd : depositUsd;
+    const newTotalAssets = totalAssets + depositDola;
+    const estimatedNewApy = newTotalAssets ? apy * (totalAssets / newTotalAssets) : 0;
+    const estimatedYearlyGain = estimatedNewApy / 100 * depositUsd;
+
+    return (
+        <div className="flex justify-between text-sm">
+            <div className="flex flex-col gap-0.5">
+                <span className="text-text-muted">Est. APY after deposit:</span>
+                <span className="text-text-muted">Est. Yearly gains:</span>
+            </div>
+            <div className="flex flex-col items-end gap-0.5">
+                <span className="font-mono text-accent font-semibold">{formatApy(estimatedNewApy)}</span>
+                <span className="font-mono text-green-400">+{formatUsd(estimatedYearlyGain)}/yr</span>
+            </div>
         </div>
     );
 }

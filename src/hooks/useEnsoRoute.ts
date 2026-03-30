@@ -24,6 +24,7 @@ export function useEnsoRoute(
   tokenIn: `0x${string}` | undefined,
   amountInWei: string,
   fromAddress: `0x${string}` | undefined,
+  isFromStable?: boolean,
 ): EnsoRouteResult {
   const [result, setResult] = useState<EnsoRouteResult>(EMPTY);
   const abortRef = useRef(0);
@@ -43,6 +44,7 @@ export function useEnsoRoute(
           fromAddress,
           tokenIn,
           amountIn: amountInWei,
+          slippage: isFromStable ? '10' : '100',
         });
         if (abortRef.current !== id) return;
         setResult({

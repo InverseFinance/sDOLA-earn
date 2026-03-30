@@ -10,13 +10,13 @@ import { SUPPORTED_TOKENS, isDola, isNativeEth, type SupportedToken } from '@/li
 import { TokenSelector } from './TokenSelector';
 import { useEnsoRoute } from '@/hooks/useEnsoRoute';
 import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
-import { SavingsOpportunites } from './SavingsOpportunities';
+import { SavingsOpportunites, SelectedOpportunity } from './SavingsOpportunities';
 import { StakingData } from '@/pages';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
 
-export function StakingCard({ stakingData} : { stakingData: StakingData }) {
+export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   const [activeTab, setActiveTab] = useState<Tab>('stake');
   const [amount, setAmount] = useState('');
   const [selectedToken, setSelectedToken] = useState<SupportedToken>(SUPPORTED_TOKENS[0]);
@@ -87,6 +87,7 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
     activeTab === 'stake' ? selectedToken.address : undefined,
     amountInWei,
     address,
+    selectedToken.isStablish,
   );
 
   // ── DOLA preview reads ──
@@ -319,28 +320,28 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
 
   function getButtonConfig(): { text: string; onClick: () => void; disabled: boolean } {
     if (!isConnected) return { text: 'Connect Wallet', onClick: () => openConnectModal?.(), disabled: false };
-    if (!amount || parsedAmount === 0n) return { text: 'Enter Amount', onClick: () => {}, disabled: true };
-    if (insufficientBalance) return { text: 'Insufficient Balance', onClick: () => {}, disabled: true };
+    if (!amount || parsedAmount === 0n) return { text: 'Enter Amount', onClick: () => { }, disabled: true };
+    if (insufficientBalance) return { text: 'Insufficient Balance', onClick: () => { }, disabled: true };
 
     if (activeTab === 'stake') {
       if (usingEnso) {
-        if (ensoRoute.isLoading) return { text: 'Fetching Route...', onClick: () => {}, disabled: true };
-        if (ensoRoute.error) return { text: 'Route Error', onClick: () => {}, disabled: true };
-        if (!ensoRoute.tx) return { text: 'Enter Amount', onClick: () => {}, disabled: true };
+        if (ensoRoute.isLoading) return { text: 'Fetching Route...', onClick: () => { }, disabled: true };
+        if (ensoRoute.error) return { text: 'Route Error', onClick: () => { }, disabled: true };
+        if (!ensoRoute.tx) return { text: 'Enter Amount', onClick: () => { }, disabled: true };
         if (ensoStep === 'approving' || isEnsoApprovalPending || isEnsoApprovalConfirming)
-          return { text: 'Approving...', onClick: () => {}, disabled: true };
+          return { text: 'Approving...', onClick: () => { }, disabled: true };
         if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
-          return { text: 'Depositing...', onClick: () => {}, disabled: true };
+          return { text: 'Depositing...', onClick: () => { }, disabled: true };
         return { text: `Deposit ${selectedToken.symbol}`, onClick: handleEnsoDeposit, disabled: false };
       } else {
-        if (isApproving || isApproveConfirming) return { text: 'Approving...', onClick: () => {}, disabled: true };
+        if (isApproving || isApproveConfirming) return { text: 'Approving...', onClick: () => { }, disabled: true };
         if (needsApproval) return { text: 'Approve DOLA', onClick: handleApprove, disabled: false };
-        if (isDepositing || isDepositConfirming) return { text: 'Depositing...', onClick: () => {}, disabled: true };
+        if (isDepositing || isDepositConfirming) return { text: 'Depositing...', onClick: () => { }, disabled: true };
         return { text: 'Deposit DOLA', onClick: handleDeposit, disabled: false };
       }
     }
 
-    if (isRedeeming || isRedeemConfirming) return { text: 'Withdrawing...', onClick: () => {}, disabled: true };
+    if (isRedeeming || isRedeemConfirming) return { text: 'Withdrawing...', onClick: () => { }, disabled: true };
     return { text: 'Withdraw sDOLA', onClick: handleRedeem, disabled: false };
   }
 
@@ -361,29 +362,30 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
               setSelectedToken(SUPPORTED_TOKENS[0]);
               setEnsoStep('idle');
             }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              activeTab === tab
-                ? 'bg-accent text-white shadow-[0_0_20px_rgba(124,58,237,0.2)]'
-                : 'text-text-muted hover:text-text-secondary'
-            }`}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab
+              ? 'bg-accent text-white shadow-[0_0_20px_rgba(124,58,237,0.2)]'
+              : 'text-text-muted hover:text-text-secondary'
+              }`}
           >
             {tab === 'stake' ? 'Deposit' : 'Withdraw'}
           </button>
         ))}
       </div>
 
-      <SavingsOpportunites
-        apy={stakingData.apy}
-        totalAssets={stakingData.totalAssets}
-        tokens={sortedTokens}
-        onSelectToken={(t) => { setSelectedToken(t); setAmount(''); setActiveTab('stake'); }}
-      />
+      <div style={{ display: (activeTab === 'stake' ? 'block' : 'none') }}>
+        <SavingsOpportunites
+          apy={stakingData.apy}
+          totalAssets={stakingData.totalAssets}
+          tokens={sortedTokens}
+          onSelectToken={(t) => { setSelectedToken(t); setTimeout(() => { handleMax() }, 0); }}
+        />
+      </div>
 
       {/* Balance */}
       {isConnected && (
-        <div className="flex justify-between items-center mb-3 text-sm">
+        <div className="flex justify-between items-center mb-1 text-sm">
           <span className="text-text-muted text-xs uppercase tracking-wider">Balance</span>
-          <button onClick={handleMax} className="text-text-secondary hover:text-accent transition-colors duration-200 font-mono text-sm">
+          <button onClick={handleMax} className="text-text-secondary cursor-pointer hover:text-accent transition-colors duration-200 font-mono text-sm">
             {balance !== undefined
               ? formatBalance(balance, balanceDecimals)
               : tokenBalances[selectedToken.address.toLowerCase()] ?? '0'
@@ -393,7 +395,7 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
       )}
 
       {/* Input */}
-      <div className="relative mb-5 group">
+      <div className="relative mb-2 group">
         <input
           type="number"
           placeholder="0.0"
@@ -425,11 +427,19 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
       {/* Preview — Deposit */}
       {parsedAmount > 0n && activeTab === 'stake' && (
         <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
-          {isDola(selectedToken.address) ? (
+          {selectedToken.isIdleStable ? (
+            <SelectedOpportunity
+              token={selectedToken}
+              apy={stakingData.apy}
+              totalAssets={stakingData.totalAssets}
+              dolaPriceUsd={stakingData.dolaPriceUsd ?? 1}
+              amount={parseFloat(amount) || 0}
+            />
+          ) : isDola(selectedToken.address) ? (
             previewShares !== undefined ? (
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">You will receive</span>
-                <span className="font-mono text-foreground">{formatBalance(previewShares)} sDOLA</span>
+                <span className="font-mono text-foreground">{formatBalance(previewShares, 2)} sDOLA</span>
               </div>
             ) : null
           ) : ensoRoute.isLoading ? (
@@ -452,7 +462,7 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
         <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
           <div className="flex justify-between text-sm">
             <span className="text-text-muted">You will receive</span>
-            <span className="font-mono text-foreground">{formatBalance(previewAssets)} DOLA</span>
+            <span className="font-mono text-foreground">{formatBalance(previewAssets, 2)} DOLA</span>
           </div>
         </div>
       )}
@@ -461,11 +471,10 @@ export function StakingCard({ stakingData} : { stakingData: StakingData }) {
       <button
         onClick={btn.onClick}
         disabled={btn.disabled}
-        className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${
-          btn.disabled
-            ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
-            : 'bg-accent hover:bg-accent-hover text-white cursor-pointer shadow-[0_0_24px_rgba(124,58,237,0.2)] hover:shadow-[0_0_32px_rgba(124,58,237,0.3)]'
-        }`}
+        className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${btn.disabled
+          ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
+          : 'bg-accent hover:bg-accent-hover text-white cursor-pointer shadow-[0_0_24px_rgba(124,58,237,0.2)] hover:shadow-[0_0_32px_rgba(124,58,237,0.3)]'
+          }`}
       >
         {isPending && !btn.disabled && (
           <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 align-middle" />

@@ -7,6 +7,7 @@ export interface SupportedToken {
   isNative?: boolean;
   usd: number;
   isIdleStable?: boolean;
+  isStablish?: boolean;
 }
 
 export const ETH_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
@@ -20,6 +21,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/14287/standard/dola.png?1696513984',
     isIdleStable: true,
+    isStablish: true,
   },
   {
     address: ETH_ADDRESS,
@@ -28,6 +30,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
     isNative: true,
+    isStablish: true,
   },
   {
     address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -36,6 +39,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 6,
     logoUri: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png',
     isIdleStable: true,
+    isStablish: true,
   },
   {
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -44,6 +48,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 6,
     logoUri: 'https://assets.coingecko.com/coins/images/325/small/Tether.png',
     isIdleStable: true,
+    isStablish: true,
   },
   {
     address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -52,6 +57,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png',
     isIdleStable: true,
+    isStablish: true,
   },
   {
     address: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
@@ -60,6 +66,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/39926/standard/usds.webp?1726666683',
     isIdleStable: true,
+    isStablish: true,
   },
   {
     address: '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
