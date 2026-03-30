@@ -10,11 +10,13 @@ import { SUPPORTED_TOKENS, isDola, isNativeEth, type SupportedToken } from '@/li
 import { TokenSelector } from './TokenSelector';
 import { useEnsoRoute } from '@/hooks/useEnsoRoute';
 import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
+import { SavingsOpportunites } from './SavingsOpportunities';
+import { StakingData } from '@/pages';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
 
-export function StakingCard() {
+export function StakingCard({ stakingData} : { stakingData: StakingData }) {
   const [activeTab, setActiveTab] = useState<Tab>('stake');
   const [amount, setAmount] = useState('');
   const [selectedToken, setSelectedToken] = useState<SupportedToken>(SUPPORTED_TOKENS[0]);
@@ -416,6 +418,7 @@ export function StakingCard() {
       {/* Preview — Deposit */}
       {parsedAmount > 0n && activeTab === 'stake' && (
         <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
+          <SavingsOpportunites apy={stakingData.apy} totalAssets={stakingData.totalAssets} tokens={sortedTokens} />
           {isDola(selectedToken.address) ? (
             previewShares !== undefined ? (
               <div className="flex justify-between text-sm">

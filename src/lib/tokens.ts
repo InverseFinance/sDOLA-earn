@@ -6,6 +6,7 @@ export interface SupportedToken {
   logoUri: string;
   isNative?: boolean;
   usd: number;
+  isIdleStable?: boolean;
 }
 
 export const ETH_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
@@ -18,6 +19,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'DOLA',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/14287/standard/dola.png?1696513984',
+    isIdleStable: true,
   },
   {
     address: ETH_ADDRESS,
@@ -33,6 +35,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'USD Coin',
     decimals: 6,
     logoUri: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png',
+    isIdleStable: true,
   },
   {
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -40,6 +43,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Tether USD',
     decimals: 6,
     logoUri: 'https://assets.coingecko.com/coins/images/325/small/Tether.png',
+    isIdleStable: true,
   },
   {
     address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -47,6 +51,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Dai Stablecoin',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png',
+    isIdleStable: true,
   },
   {
     address: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
@@ -54,6 +59,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'USDS Stablecoin',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/39926/standard/usds.webp?1726666683',
+    isIdleStable: true,
   },
   {
     address: '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
@@ -68,6 +74,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Frax USD',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/53963/standard/frxUSD.png?1737792154',
+    isIdleStable: true,
   },
   {
     address: '0xcf62f905562626cfcdd2261162a51fd02fc9c5b6',
@@ -82,6 +89,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Curve.Fi USD',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/30118/small/crvusd.jpeg',
+    isIdleStable: true,
   },
   {
     address: '0x0655977feb2f289a4ab78af67bab0d17aab84367',
@@ -96,6 +104,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'GHO',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/30663/small/gho-token-logo.png',
+    isIdleStable: true,
   },
   {
     address: '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
@@ -103,6 +112,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Liquity USD',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/14666/small/Group_3.png',
+    isIdleStable: true,
   },
   // {
   //   address: '0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3',
@@ -124,6 +134,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Ethena USDe',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/33613/standard/usde.png?1733810059',
+    isIdleStable: true,
   },
   {
     address: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',

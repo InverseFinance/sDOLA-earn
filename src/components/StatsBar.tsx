@@ -1,15 +1,7 @@
 'use client';
 
 import { formatApy, formatUsd } from '@/lib/utils';
-
-interface StatsBarProps {
-  data: {
-    apy: number;
-    projectedApy: number;
-    apy30d: number;
-    tvlUsd: number;
-  };
-}
+import { StakingData } from '@/pages';
 
 function StatCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
@@ -23,11 +15,11 @@ function StatCard({ label, value, highlight }: { label: string; value: string; h
   );
 }
 
-export function StatsBar({ data }: StatsBarProps) {
+export function StatsBar({ stakingData} : { stakingData: StakingData }) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <StatCard label="Current APY" value={formatApy(data.apy)} highlight />
-      <StatCard label="TVL" value={formatUsd(data.tvlUsd)} />
+      <StatCard label="Current APY" value={formatApy(stakingData.apy)} highlight />
+      <StatCard label="TVL" value={formatUsd(stakingData.tvlUsd)} />
     </div>
   );
 }

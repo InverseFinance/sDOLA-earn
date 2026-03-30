@@ -33,7 +33,7 @@ export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSel
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 bg-surface border border-white/[0.06] rounded-lg px-2.5 py-1.5 hover:border-accent/40 transition-all duration-200"
+        className="flex cursor-pointer items-center gap-1.5 bg-surface border border-white/[0.06] rounded-lg px-2.5 py-1.5 hover:border-accent/40 transition-all duration-200"
       >
         <img src={selected.logoUri} alt={selected.symbol} width={18} height={18} className="rounded-full" />
         <span className="text-sm font-medium text-foreground">{selected.symbol}</span>
@@ -47,7 +47,7 @@ export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSel
 
       {open && (
         <div className="absolute z-50 top-full mt-2 right-0 w-64 max-h-72 overflow-y-auto bg-card-bg border border-white/[0.06] rounded-xl shadow-2xl backdrop-blur-sm">
-          <input className="h-8 w-full px-3 py-2 focus:outline-2" placeholder="Search a token" name="tokenSearch" value={search} onChange={v => setSearch(v.target.value)} />
+          <input autoFocus className="h-8 w-full px-3 py-2 focus:outline-2" placeholder="Search a token" name="tokenSearch" value={search} onChange={v => setSearch(v.target.value)} />
           {filtered.map((token) => (
             <button
               key={token.address}

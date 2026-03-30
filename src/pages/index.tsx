@@ -5,11 +5,13 @@ import { StakingCard } from '@/components/StakingCard';
 import { Footer } from '@/components/Footer';
 import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 
-interface StakingData {
+export interface StakingData {
   apy: number;
   projectedApy: number;
   apy30d: number;
   tvlUsd: number;
+  totalAssets: number;
+  dolaPriceUsd: number;
 }
 
 export const getServerSideProps: GetServerSideProps<{ data: StakingData | null }> = async () => {
@@ -26,7 +28,6 @@ export const getServerSideProps: GetServerSideProps<{ data: StakingData | null }
 export default function Home({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const title = 'sDOLA Earn - Yield Bearing Stablecoin | Inverse Finance';
   const description = 'Earn decentralized organic yield by depositing DOLA into sDOLA. No lockup, no minimum deposit. Powered by Inverse Finance.';
-
   return (
     <div className="flex flex-col min-h-screen">
       <Head>
@@ -51,7 +52,7 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
         </div>
         <div className="relative">
           {data ? (
-            <StatsBar data={data} />
+            <StatsBar stakingData={data} />
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {[...Array(2)].map((_, i) => (
@@ -61,7 +62,7 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
           )}
         </div>
         <div className="relative">
-          <StakingCard />
+          <StakingCard stakingData={data} />
         </div>
       </main>
       <Footer />
