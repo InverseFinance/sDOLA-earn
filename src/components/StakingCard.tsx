@@ -1,21 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useState, useEffect, useCallback } from 'react';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction, useBalance } from 'wagmi';
 import { parseUnits, formatUnits, maxUint256 } from 'viem';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { DOLA_ADDRESS, SDOLA_ADDRESS, ERC20_ABI, ERC4626_ABI } from '@/lib/contracts';
-import { formatBalance } from '@/lib/utils';
+import { formatBalance, formatTokenAmount } from '@/lib/utils';
+import { SUPPORTED_TOKENS, isDola, isNativeEth, type SupportedToken } from '@/lib/tokens';
+import { TokenSelector } from './TokenSelector';
+import { useEnsoRoute } from '@/hooks/useEnsoRoute';
+import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
 
 type Tab = 'stake' | 'unstake';
+type EnsoStep = 'idle' | 'approving' | 'routing';
 
 export function StakingCard() {
   const [activeTab, setActiveTab] = useState<Tab>('stake');
   const [amount, setAmount] = useState('');
+  const [selectedToken, setSelectedToken] = useState<SupportedToken>(SUPPORTED_TOKENS[0]);
+  const [sortedTokens, setSortedTokens] = useState<SupportedToken[]>(SUPPORTED_TOKENS);
+  const [tokenBalances, setTokenBalances] = useState<Record<string, string>>({});
+  const [ensoStep, setEnsoStep] = useState<EnsoStep>('idle');
+
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
 
-  // Read DOLA balance
+  // ── DOLA direct flow reads ──
+
   const { data: dolaBalance, refetch: refetchDola } = useReadContract({
     address: DOLA_ADDRESS,
     abi: ERC20_ABI,
@@ -24,7 +35,6 @@ export function StakingCard() {
     query: { enabled: !!address },
   });
 
-  // Read sDOLA balance
   const { data: sdolaBalance, refetch: refetchSdola } = useReadContract({
     address: SDOLA_ADDRESS,
     abi: ERC4626_ABI,
@@ -33,7 +43,6 @@ export function StakingCard() {
     query: { enabled: !!address },
   });
 
-  // Read DOLA allowance for sDOLA contract
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: DOLA_ADDRESS,
     abi: ERC20_ABI,
@@ -42,24 +51,52 @@ export function StakingCard() {
     query: { enabled: !!address },
   });
 
-  // Preview: convert DOLA amount to sDOLA shares
+  // ── Selected non-DOLA ERC20 balance (for max / insufficient check) ──
+
+  const { data: selectedTokenBalance, refetch: refetchSelectedBalance } = useReadContract({
+    address: selectedToken.address,
+    abi: ERC20_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && activeTab === 'stake' && !isDola(selectedToken.address) && !isNativeEth(selectedToken.address),
+    },
+  });
+
+  // ── Native ETH balance ──
+
+  const { data: ethBalanceData } = useBalance({ address, query: { enabled: !!address } });
+
+  // ── Parsed amount ──
+
   const parsedAmount = (() => {
     try {
-      return amount && parseFloat(amount) > 0 ? parseUnits(amount, 18) : 0n;
+      return amount && parseFloat(amount) > 0 ? parseUnits(amount, activeTab === 'stake' ? selectedToken.decimals : 18) : 0n;
     } catch {
       return 0n;
     }
   })();
+
+  const amountInWei = parsedAmount > 0n ? parsedAmount.toString() : '0';
+
+  // ── Enso route (non-DOLA tokens only) ──
+
+  const ensoRoute = useEnsoRoute(
+    activeTab === 'stake' ? selectedToken.address : undefined,
+    amountInWei,
+    address,
+  );
+
+  // ── DOLA preview reads ──
 
   const { data: previewShares } = useReadContract({
     address: SDOLA_ADDRESS,
     abi: ERC4626_ABI,
     functionName: 'convertToShares',
     args: [parsedAmount],
-    query: { enabled: activeTab === 'stake' && parsedAmount > 0n },
+    query: { enabled: activeTab === 'stake' && isDola(selectedToken.address) && parsedAmount > 0n },
   });
 
-  // Preview: convert sDOLA shares to DOLA assets
   const { data: previewAssets } = useReadContract({
     address: SDOLA_ADDRESS,
     abi: ERC4626_ABI,
@@ -68,33 +105,64 @@ export function StakingCard() {
     query: { enabled: activeTab === 'unstake' && parsedAmount > 0n },
   });
 
-  // Write: approve
+  // ── DOLA direct flow writes ──
+
   const { writeContract: approve, data: approveTxHash, isPending: isApproving, reset: resetApprove } = useWriteContract();
-  const { isLoading: isApproveConfirming, isSuccess: isApproveConfirmed } = useWaitForTransactionReceipt({
-    hash: approveTxHash,
-  });
+  const { isLoading: isApproveConfirming, isSuccess: isApproveConfirmed } = useWaitForTransactionReceipt({ hash: approveTxHash });
 
-  // Write: deposit
   const { writeContract: deposit, data: depositTxHash, isPending: isDepositing, reset: resetDeposit } = useWriteContract();
-  const { isLoading: isDepositConfirming, isSuccess: isDepositConfirmed } = useWaitForTransactionReceipt({
-    hash: depositTxHash,
-  });
+  const { isLoading: isDepositConfirming, isSuccess: isDepositConfirmed } = useWaitForTransactionReceipt({ hash: depositTxHash });
 
-  // Write: redeem
   const { writeContract: redeem, data: redeemTxHash, isPending: isRedeeming, reset: resetRedeem } = useWriteContract();
-  const { isLoading: isRedeemConfirming, isSuccess: isRedeemConfirmed } = useWaitForTransactionReceipt({
-    hash: redeemTxHash,
-  });
+  const { isLoading: isRedeemConfirming, isSuccess: isRedeemConfirmed } = useWaitForTransactionReceipt({ hash: redeemTxHash });
 
-  // Refetch after approve confirms
-  useEffect(() => {
-    if (isApproveConfirmed) {
-      refetchAllowance();
-      resetApprove();
+  // ── Enso flow writes (two separate hooks: approval + route) ──
+
+  const { sendTransaction: sendApprovalTx, data: ensoApprovalHash, isPending: isEnsoApprovalPending, reset: resetEnsoApproval } = useSendTransaction();
+  const { isLoading: isEnsoApprovalConfirming, isSuccess: isEnsoApprovalConfirmed } = useWaitForTransactionReceipt({ hash: ensoApprovalHash });
+
+  const { sendTransaction: sendRouteTx, data: ensoRouteHash, isPending: isEnsoRoutePending, reset: resetEnsoRoute } = useSendTransaction();
+  const { isLoading: isEnsoRouteConfirming, isSuccess: isEnsoRouteConfirmed } = useWaitForTransactionReceipt({ hash: ensoRouteHash });
+
+  // ── Fetch Enso balances on wallet connect ──
+
+  const loadBalances = useCallback(async (addr: `0x${string}`) => {
+    try {
+      const balances = await fetchEnsoBalances(addr);
+      const balMap: Record<string, string> = {};
+      for (const b of balances) {
+        balMap[b.token.toLowerCase()] = formatBalance(BigInt(b.amount), b.decimals);
+      }
+      setTokenBalances(balMap);
+
+      const withBalance: { token: SupportedToken; usd: number }[] = [];
+      const withoutBalance: SupportedToken[] = [];
+      for (const t of SUPPORTED_TOKENS) {
+        const found = balances.find(b => b.token.toLowerCase() === t.address.toLowerCase());
+        if (found && BigInt(found.amount) > 0n) {
+          const usd = Number(found.amount) * Number(found.price) / (10 ** found.decimals);
+          withBalance.push({ token: t, usd });
+        } else {
+          withoutBalance.push(t);
+        }
+      }
+      withBalance.sort((a, b) => b.usd - a.usd);
+      setSortedTokens([...withBalance.map(w => w.token), ...withoutBalance]);
+    } catch (err) {
+      console.error('Failed to fetch Enso balances:', err);
     }
+  }, []);
+
+  useEffect(() => {
+    if (address) loadBalances(address);
+  }, [address, loadBalances]);
+
+  // ── DOLA flow effects ──
+
+  useEffect(() => {
+    if (isApproveConfirmed) { refetchAllowance(); resetApprove(); }
   }, [isApproveConfirmed, refetchAllowance, resetApprove]);
 
-  // Refetch after deposit confirms
   useEffect(() => {
     if (isDepositConfirmed) {
       setAmount('');
@@ -102,30 +170,73 @@ export function StakingCard() {
       refetchSdola();
       refetchAllowance();
       resetDeposit();
+      if (address) loadBalances(address);
     }
-  }, [isDepositConfirmed, refetchDola, refetchSdola, refetchAllowance, resetDeposit]);
+  }, [isDepositConfirmed, refetchDola, refetchSdola, refetchAllowance, resetDeposit, address, loadBalances]);
 
-  // Refetch after redeem confirms
   useEffect(() => {
     if (isRedeemConfirmed) {
       setAmount('');
       refetchDola();
       refetchSdola();
       resetRedeem();
+      if (address) loadBalances(address);
     }
-  }, [isRedeemConfirmed, refetchDola, refetchSdola, resetRedeem]);
+  }, [isRedeemConfirmed, refetchDola, refetchSdola, resetRedeem, address, loadBalances]);
 
-  const balance = activeTab === 'stake' ? dolaBalance : sdolaBalance;
-  const balanceLabel = activeTab === 'stake' ? 'DOLA' : 'sDOLA';
+  // ── Enso flow: auto-advance from approval → route ──
 
-  const needsApproval = activeTab === 'stake' && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
+  useEffect(() => {
+    if (ensoStep === 'approving' && isEnsoApprovalConfirmed && ensoRoute.tx) {
+      resetEnsoApproval();
+      setEnsoStep('routing');
+      sendRouteTx({
+        to: ensoRoute.tx.to as `0x${string}`,
+        data: ensoRoute.tx.data as `0x${string}`,
+        value: BigInt(ensoRoute.tx.value || '0'),
+      });
+    }
+  }, [ensoStep, isEnsoApprovalConfirmed, ensoRoute.tx, sendRouteTx, resetEnsoApproval]);
+
+  // ── Enso flow: route confirmed ──
+
+  useEffect(() => {
+    if (ensoStep === 'routing' && isEnsoRouteConfirmed) {
+      setEnsoStep('idle');
+      setAmount('');
+      resetEnsoRoute();
+      refetchSdola();
+      refetchSelectedBalance();
+      if (address) loadBalances(address);
+    }
+  }, [ensoStep, isEnsoRouteConfirmed, resetEnsoRoute, refetchSdola, refetchSelectedBalance, address, loadBalances]);
+
+  // ── Derived state ──
+
+  const usingEnso = activeTab === 'stake' && !isDola(selectedToken.address);
+
+  const stakeBalance = isDola(selectedToken.address)
+    ? dolaBalance
+    : isNativeEth(selectedToken.address)
+      ? ethBalanceData?.value
+      : selectedTokenBalance;
+
+  const balance = activeTab === 'stake' ? stakeBalance : sdolaBalance;
+  const balanceLabel = activeTab === 'stake' ? selectedToken.symbol : 'sDOLA';
+  const balanceDecimals = activeTab === 'stake' ? selectedToken.decimals : 18;
+
+  const needsApproval = activeTab === 'stake' && isDola(selectedToken.address) && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
   const insufficientBalance = parsedAmount > 0n && balance !== undefined && parsedAmount > balance;
 
-  const isPending = isApproving || isApproveConfirming || isDepositing || isDepositConfirming || isRedeeming || isRedeemConfirming;
+  const isDolaFlowPending = isApproving || isApproveConfirming || isDepositing || isDepositConfirming || isRedeeming || isRedeemConfirming;
+  const isEnsoFlowPending = ensoStep !== 'idle' || isEnsoApprovalPending || isEnsoApprovalConfirming || isEnsoRoutePending || isEnsoRouteConfirming;
+  const isPending = isDolaFlowPending || isEnsoFlowPending;
+
+  // ── Handlers ──
 
   function handleMax() {
     if (balance) {
-      setAmount(formatUnits(balance, 18));
+      setAmount(formatUnits(balance, balanceDecimals));
     }
   }
 
@@ -158,16 +269,73 @@ export function StakingCard() {
     });
   }
 
+  async function handleEnsoDeposit() {
+    if (!address || !ensoRoute.tx) return;
+
+    // Native ETH: no approval needed
+    if (isNativeEth(selectedToken.address)) {
+      setEnsoStep('routing');
+      sendRouteTx({
+        to: ensoRoute.tx.to as `0x${string}`,
+        data: ensoRoute.tx.data as `0x${string}`,
+        value: BigInt(ensoRoute.tx.value || '0'),
+      });
+      return;
+    }
+
+    // ERC20: check if approval is needed
+    try {
+      const approval = await fetchEnsoApproval({
+        fromAddress: address,
+        tokenAddress: selectedToken.address,
+        amount: amountInWei,
+      });
+
+      if (approval.tx?.data && approval.tx.data !== '0x') {
+        setEnsoStep('approving');
+        sendApprovalTx({
+          to: approval.tx.to as `0x${string}`,
+          data: approval.tx.data as `0x${string}`,
+          value: BigInt(approval.tx.value || '0'),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error('Approval check failed:', err);
+    }
+
+    // Already approved — send route directly
+    setEnsoStep('routing');
+    sendRouteTx({
+      to: ensoRoute.tx.to as `0x${string}`,
+      data: ensoRoute.tx.data as `0x${string}`,
+      value: BigInt(ensoRoute.tx.value || '0'),
+    });
+  }
+
+  // ── Button config ──
+
   function getButtonConfig(): { text: string; onClick: () => void; disabled: boolean } {
     if (!isConnected) return { text: 'Connect Wallet', onClick: () => openConnectModal?.(), disabled: false };
     if (!amount || parsedAmount === 0n) return { text: 'Enter Amount', onClick: () => {}, disabled: true };
     if (insufficientBalance) return { text: 'Insufficient Balance', onClick: () => {}, disabled: true };
 
     if (activeTab === 'stake') {
-      if (isApproving || isApproveConfirming) return { text: 'Approving...', onClick: () => {}, disabled: true };
-      if (needsApproval) return { text: 'Approve DOLA', onClick: handleApprove, disabled: false };
-      if (isDepositing || isDepositConfirming) return { text: 'Depositing...', onClick: () => {}, disabled: true };
-      return { text: 'Deposit DOLA', onClick: handleDeposit, disabled: false };
+      if (usingEnso) {
+        if (ensoRoute.isLoading) return { text: 'Fetching Route...', onClick: () => {}, disabled: true };
+        if (ensoRoute.error) return { text: 'Route Error', onClick: () => {}, disabled: true };
+        if (!ensoRoute.tx) return { text: 'Enter Amount', onClick: () => {}, disabled: true };
+        if (ensoStep === 'approving' || isEnsoApprovalPending || isEnsoApprovalConfirming)
+          return { text: 'Approving...', onClick: () => {}, disabled: true };
+        if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
+          return { text: 'Depositing...', onClick: () => {}, disabled: true };
+        return { text: `Deposit ${selectedToken.symbol}`, onClick: handleEnsoDeposit, disabled: false };
+      } else {
+        if (isApproving || isApproveConfirming) return { text: 'Approving...', onClick: () => {}, disabled: true };
+        if (needsApproval) return { text: 'Approve DOLA', onClick: handleApprove, disabled: false };
+        if (isDepositing || isDepositConfirming) return { text: 'Depositing...', onClick: () => {}, disabled: true };
+        return { text: 'Deposit DOLA', onClick: handleDeposit, disabled: false };
+      }
     }
 
     if (isRedeeming || isRedeemConfirming) return { text: 'Withdrawing...', onClick: () => {}, disabled: true };
@@ -178,7 +346,6 @@ export function StakingCard() {
 
   return (
     <div className="relative bg-card-bg/80 border border-white/[0.06] rounded-2xl p-5 sm:p-6 backdrop-blur-sm">
-      {/* Subtle top glow */}
       <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
       {/* Tabs */}
@@ -186,7 +353,12 @@ export function StakingCard() {
         {(['stake', 'unstake'] as Tab[]).map((tab) => (
           <button
             key={tab}
-            onClick={() => { setActiveTab(tab); setAmount(''); }}
+            onClick={() => {
+              setActiveTab(tab);
+              setAmount('');
+              setSelectedToken(SUPPORTED_TOKENS[0]);
+              setEnsoStep('idle');
+            }}
             className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               activeTab === tab
                 ? 'bg-accent text-white shadow-[0_0_20px_rgba(124,58,237,0.2)]'
@@ -203,7 +375,10 @@ export function StakingCard() {
         <div className="flex justify-between items-center mb-3 text-sm">
           <span className="text-text-muted text-xs uppercase tracking-wider">Balance</span>
           <button onClick={handleMax} className="text-text-secondary hover:text-accent transition-colors duration-200 font-mono text-sm">
-            {balance !== undefined ? formatBalance(balance) : '0'} {balanceLabel}
+            {balance !== undefined
+              ? formatBalance(balance, balanceDecimals)
+              : tokenBalances[selectedToken.address.toLowerCase()] ?? '0'
+            } {balanceLabel}
           </button>
         </div>
       )}
@@ -215,7 +390,8 @@ export function StakingCard() {
           placeholder="0.0"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full bg-surface border border-white/[0.06] rounded-xl px-4 py-4 text-xl font-mono text-foreground placeholder:text-text-muted/50 focus:outline-none focus:border-accent/40 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.08)] transition-all duration-200"
+          disabled={ensoStep !== 'idle'}
+          className="w-full bg-surface border border-white/[0.06] rounded-xl px-4 py-4 pr-40 text-xl font-mono text-foreground placeholder:text-text-muted/50 focus:outline-none focus:border-accent/40 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.08)] transition-all duration-200 disabled:opacity-50"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
           <button
@@ -224,25 +400,51 @@ export function StakingCard() {
           >
             Max
           </button>
-          <span className="text-text-muted/60 text-xs font-medium">{balanceLabel}</span>
+          {activeTab === 'stake' ? (
+            <TokenSelector
+              tokens={sortedTokens}
+              selected={selectedToken}
+              onSelect={(t) => { setSelectedToken(t); setAmount(''); }}
+              balances={tokenBalances}
+            />
+          ) : (
+            <span className="text-text-muted/60 text-xs font-medium">sDOLA</span>
+          )}
         </div>
       </div>
 
-      {/* Preview */}
-      {parsedAmount > 0n && (
+      {/* Preview — Deposit */}
+      {parsedAmount > 0n && activeTab === 'stake' && (
         <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
-          {activeTab === 'stake' && previewShares !== undefined && (
-            <div className="flex justify-between text-sm">
-              <span className="text-text-muted">You will receive</span>
-              <span className="font-mono text-foreground">{formatBalance(previewShares)} sDOLA</span>
+          {isDola(selectedToken.address) ? (
+            previewShares !== undefined ? (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">You will receive</span>
+                <span className="font-mono text-foreground">{formatBalance(previewShares)} sDOLA</span>
+              </div>
+            ) : null
+          ) : ensoRoute.isLoading ? (
+            <div className="flex justify-center py-1">
+              <span className="inline-block w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
             </div>
-          )}
-          {activeTab === 'unstake' && previewAssets !== undefined && (
+          ) : ensoRoute.amountOut ? (
             <div className="flex justify-between text-sm">
-              <span className="text-text-muted">You will receive</span>
-              <span className="font-mono text-foreground">{formatBalance(previewAssets)} DOLA</span>
+              <span className="text-text-muted">Estimated output</span>
+              <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
             </div>
-          )}
+          ) : ensoRoute.error ? (
+            <div className="text-sm text-red-400 text-center">{ensoRoute.error}</div>
+          ) : null}
+        </div>
+      )}
+
+      {/* Preview — Withdraw */}
+      {parsedAmount > 0n && activeTab === 'unstake' && previewAssets !== undefined && (
+        <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
+          <div className="flex justify-between text-sm">
+            <span className="text-text-muted">You will receive</span>
+            <span className="font-mono text-foreground">{formatBalance(previewAssets)} DOLA</span>
+          </div>
         </div>
       )}
 

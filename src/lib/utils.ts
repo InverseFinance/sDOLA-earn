@@ -21,6 +21,10 @@ export function formatBalance(value: bigint, decimals: number = 18, maxDecimals:
   return `${addCommas(whole)}.${fraction.slice(0, maxDecimals)}`;
 }
 
+export function formatTokenAmount(weiValue: string, decimals: number, maxDecimals: number = 4): string {
+  return formatBalance(BigInt(weiValue), decimals, maxDecimals);
+}
+
 function addCommas(n: string): string {
   return n.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
