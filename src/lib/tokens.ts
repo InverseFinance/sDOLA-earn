@@ -5,6 +5,7 @@ export interface SupportedToken {
   decimals: number;
   logoUri: string;
   isNative?: boolean;
+  usd: number;
 }
 
 export const ETH_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
@@ -48,11 +49,32 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     logoUri: 'https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png',
   },
   {
-    address: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
-    symbol: 'FRAX',
-    name: 'Frax',
+    address: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
+    symbol: 'USDS',
+    name: 'USDS Stablecoin',
     decimals: 18,
-    logoUri: 'https://assets.coingecko.com/coins/images/13422/small/FRAX_icon.png',
+    logoUri: 'https://assets.coingecko.com/coins/images/39926/standard/usds.webp?1726666683',
+  },
+  {
+    address: '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
+    symbol: 'sUSDS',
+    name: 'sUSDS Stablecoin',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/52721/standard/sUSDS_Coin.png?1734086971',
+  },
+  {
+    address: '0xcacd6fd266af91b8aed52accc382b4e165586e29',
+    symbol: 'frxUSD',
+    name: 'Frax USD',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/53963/standard/frxUSD.png?1737792154',
+  },
+  {
+    address: '0xcf62f905562626cfcdd2261162a51fd02fc9c5b6',
+    symbol: 'sfrxUSD',
+    name: 'Frax Staked frxUSD',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/53964/standard/sfrxUSD.png?1737792232',
   },
   {
     address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
@@ -60,6 +82,13 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     name: 'Curve.Fi USD',
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/30118/small/crvusd.jpeg',
+  },
+  {
+    address: '0x0655977feb2f289a4ab78af67bab0d17aab84367',
+    symbol: 'scrvUSD',
+    name: 'Savings crvUSD',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/51712/standard/scrvusd.jpg?1746671018',
   },
   {
     address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
@@ -75,13 +104,13 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     decimals: 18,
     logoUri: 'https://assets.coingecko.com/coins/images/14666/small/Group_3.png',
   },
-  {
-    address: '0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3',
-    symbol: 'MIM',
-    name: 'Magic Internet Money',
-    decimals: 18,
-    logoUri: 'https://assets.coingecko.com/coins/images/16786/small/mimlogopng.png',
-  },
+  // {
+  //   address: '0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3',
+  //   symbol: 'MIM',
+  //   name: 'Magic Internet Money',
+  //   decimals: 18,
+  //   logoUri: 'https://assets.coingecko.com/coins/images/16786/small/mimlogopng.png',
+  // },
   {
     address: '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
     symbol: 'sDAI',
@@ -90,11 +119,18 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     logoUri: 'https://assets.coingecko.com/coins/images/32254/small/sdai.png',
   },
   {
+    address: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+    symbol: 'USDe',
+    name: 'Ethena USDe',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/33613/standard/usde.png?1733810059',
+  },
+  {
     address: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
     symbol: 'sUSDe',
     name: 'Staked USDe',
     decimals: 18,
-    logoUri: 'https://assets.coingecko.com/coins/images/33669/small/sUSDe.png',
+    logoUri: 'https://assets.coingecko.com/coins/images/33669/standard/sUSDe-Symbol-Color.png?1716307680',
   },
   {
     address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',

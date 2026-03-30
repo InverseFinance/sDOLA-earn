@@ -141,7 +141,7 @@ export function StakingCard() {
         const found = balances.find(b => b.token.toLowerCase() === t.address.toLowerCase());
         if (found && BigInt(found.amount) > 0n) {
           const usd = Number(found.amount) * Number(found.price) / (10 ** found.decimals);
-          withBalance.push({ token: t, usd });
+          withBalance.push({ token: { ...t, usd }, usd });
         } else {
           withoutBalance.push(t);
         }

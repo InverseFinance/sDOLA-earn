@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { SupportedToken } from '@/lib/tokens';
+import { formatUsd } from '@/lib/utils';
 
 interface TokenSelectorProps {
   tokens: SupportedToken[];
@@ -44,20 +45,28 @@ export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSel
             <button
               key={token.address}
               onClick={() => { onSelect(token); setOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.04] transition-colors duration-150 ${
-                token.address === selected.address ? 'bg-accent/[0.08]' : ''
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.04] transition-colors duration-150 ${token.address === selected.address ? 'bg-accent/[0.08]' : ''
+                }`}
             >
               <img src={token.logoUri} alt={token.symbol} width={24} height={24} className="rounded-full flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-foreground">{token.symbol}</div>
                 <div className="text-xs text-text-muted truncate">{token.name}</div>
               </div>
-              {balances?.[token.address.toLowerCase()] && (
-                <span className="text-xs font-mono text-text-secondary">
-                  {balances[token.address.toLowerCase()]}
-                </span>
-              )}
+              {
+                balances?.[token.address.toLowerCase()] && (
+                  <div className="flex flex-col gap-1 items-end">
+                    <span className="text-xs font-mono text-text-secondary">
+                      {balances[token.address.toLowerCase()]}
+                    </span>
+                    {
+                      token.usd && <span className="text-xs font-mono text-text-secondary">
+                        {token.usd < 1 ? '<$1' : `${formatUsd(token.usd)}`}
+                      </span>
+                    }
+                  </div>
+                )
+              }
             </button>
           ))}
         </div>
