@@ -14,6 +14,22 @@ export default function Document() {
         <meta name="twitter:image" content="https://www.inverse.finance/assets/socials/sDOLA.png" />
       </Head>
       <body>
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=G-QY92TLX5M2`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-QY92TLX5M2', {
+              page_path: window.location.pathname,
+            });
+          `,
+          }}
+        />
         <Main />
         <NextScript />
       </body>
