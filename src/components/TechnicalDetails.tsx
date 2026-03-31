@@ -71,7 +71,7 @@ export function TechnicalDetails() {
           <p className="text-text-muted text-[10px] tracking-[0.15em] font-medium">Converting and &quot;zaps&quot;</p>
         </div>
         <p className="text-text-secondary leading-relaxed">
-          Conversions from non-DOLA to sDOLA is powered by the third-party <a
+          Conversions from non-DOLA to sDOLA are powered by the third-party <a
               href={`https://www.enso.build`}
               target="_blank"
               rel="noopener noreferrer"

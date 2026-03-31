@@ -4,9 +4,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { formatUnits } from 'viem';
 import { SDOLA_ADDRESS, ERC4626_ABI } from '@/lib/contracts';
+import { formatBalance } from '@/lib/utils';
 import { StakingData } from '@/pages';
 
 const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
+
+function withCommas(numStr: string): string {
+  const [whole, fraction] = numStr.split('.');
+  const formatted = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return fraction != null ? `${formatted}.${fraction}` : formatted;
+}
 
 export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) {
   const { address } = useAccount();
@@ -54,7 +61,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
 
   if (!hasBalance) return null;
 
-  const sdolaFormatted = parseFloat(formatUnits(sdolaBalance, 18)).toFixed(4);
+  const sdolaFormatted = formatBalance(sdolaBalance, 18, 4);
   const dolaValue = displayDola ? parseFloat(displayDola) : null;
   const dolaPriceUsd = stakingData?.dolaPriceUsd ?? 1;
   const apy = stakingData?.apy ?? 0;
@@ -87,7 +94,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
               in DOLA stablecoin terms
             </p>
             <p className="text-xl font-bold font-mono tracking-tight gradient-text tabular-nums">
-              {displayDola ?? '—'}
+              {displayDola ? withCommas(displayDola) : '—'}
             </p>
           </div>
         </div>
@@ -99,7 +106,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
               Est. Monthly Yield
             </p>
             <p className="text-lg font-bold font-mono tracking-tight text-foreground tabular-nums">
-              {monthlyYieldUsd != null ? `$${monthlyYieldUsd.toFixed(2)}` : '—'}
+              {monthlyYieldUsd != null ? `$${withCommas(monthlyYieldUsd.toFixed(2))}` : '—'}
             </p>
           </div>
 
@@ -110,7 +117,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
               Est. Yearly Yield
             </p>
             <p className="text-lg font-bold font-mono tracking-tight text-foreground tabular-nums">
-              {yearlyYieldUsd != null ? `$${yearlyYieldUsd.toFixed(2)}` : '—'}
+              {yearlyYieldUsd != null ? `$${withCommas(yearlyYieldUsd.toFixed(2))}` : '—'}
             </p>
           </div>
         </div>
