@@ -138,7 +138,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
   // ── Enso flow writes (two separate hooks: approval + route) ──
 
-  const { sendTransaction: sendApprovalTx, data: ensoApprovalHash, isPending: isEnsoApprovalPending, reset: resetEnsoApproval } = useSendTransaction();
+  const { sendTransaction: sendApprovalTx, data: ensoApprovalHash, isPending: isEnsoApprovalPending, isError: isEnsoApprovalError, reset: resetEnsoApproval } = useSendTransaction();
   const { isLoading: isEnsoApprovalConfirming, isSuccess: isEnsoApprovalConfirmed } = useWaitForTransactionReceipt({ hash: ensoApprovalHash });
 
   const { sendTransaction: sendRouteTx, data: ensoRouteHash, isPending: isEnsoRoutePending, reset: resetEnsoRoute } = useSendTransaction();
@@ -211,6 +211,15 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
       if (address) loadBalances(address);
     }
   }, [isRedeemConfirmed, refetchDola, refetchSdola, resetRedeem, address, loadBalances]);
+
+  // ── Enso flow: reset on approval rejection/error ──
+
+  useEffect(() => {
+    if (ensoStep === 'approving' && isEnsoApprovalError) {
+      resetEnsoApproval();
+      setEnsoStep('idle');
+    }
+  }, [ensoStep, isEnsoApprovalError, resetEnsoApproval]);
 
   // ── Enso flow: auto-advance from approval → route ──
 
@@ -315,10 +324,11 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
     // ERC20: check if approval is needed
     try {
+      const isUsdt = selectedToken.address.toLowerCase() === '0xdac17f958d2ee523a2206206994597c13d831ec7';
       const approval = await fetchEnsoApproval({
         fromAddress: address,
         tokenAddress: selectedToken.address,
-        amount: amountInWei,
+        amount: isUsdt ? maxUint256.toString() : amountInWei,
       });
 
       if (approval.tx?.data && approval.tx.data !== '0x') {
