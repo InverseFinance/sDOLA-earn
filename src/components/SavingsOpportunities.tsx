@@ -49,45 +49,45 @@ export const SavingsOpportunites = ({
     const idleTokens = tokens.filter(t => t.isIdleStable && t.usd >= 1);
 
     return (
-        <div className="mb-3 border-b border-white/[0.04] pb-3 ">
+        <div className="mb-1">
+            {/* Header row */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full cursor-pointer flex items-center justify-between gap-2 text-sm hover:opacity-80 transition-opacity flex-col sm:flex-row"
+                className="w-full cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-2 rounded-xl px-3 py-2.5 hover:bg-accent/[0.09] transition-colors duration-150"
             >
-                <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="text-yellow-400 text-xs">◆</span>
-                    <span className="text-text-muted whitespace-nowrap">
-                        Your idle stables: <span className="text-foreground font-mono">{formatUsd(totalIldeUsd)}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                    {/* <span className="text-cyan text-[10px]">◆</span> */}
+                    <span className="text-text-secondary text-xs whitespace-nowrap">
+                        Your idle stables:{' '}
+                        <span className="text-foreground font-mono font-medium">{formatUsd(totalIldeUsd)}</span>
                     </span>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                    {/* <span className="text-text-muted text-xs">
-                        Est. APY after deposit: <span className="text-accent font-mono font-semibold">{formatApy(estimatedNewApy)}</span>
-                    </span> */}
-                    <span className="text-green-400 font-mono font-semibold text-xs">
-                        You could earn ~{formatUsd(estimatedYearlyGain)} a year
+                <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-success font-mono font-semibold text-xs">
+                        You could earn ~{formatUsd(estimatedYearlyGain)}/yr
                     </span>
-                    <span className="text-text-muted text-[10px]">{isExpanded ? '▲' : '▼'}</span>
+                    <span className="text-text-muted text-[9px]">{isExpanded ? '▼' : '▶'}</span>
                 </div>
             </button>
 
+            {/* Token list */}
             {isExpanded && (
-                <div className="mt-2 space-y-1.5 pt-2">
-                    {idleTokens.map(token => {
-                        const estimates = estimateOppurtunities({ apy, totalAssets, tokens: [token], dolaPriceUsd }) 
+                <div className="mt-1 border border-white/[0.04] rounded-xl overflow-hidden">
+                    {idleTokens.map((token, i) => {
+                        const estimates = estimateOppurtunities({ apy, totalAssets, tokens: [token], dolaPriceUsd })
                         const tokenYearlyGain = estimates.estimatedNewApy / 100 * token.usd;
                         return (
                             <button
                                 key={token.address}
                                 onClick={() => onSelectToken?.(token)}
-                                className={`w-full flex items-center justify-between text-xs rounded-lg px-2 py-1 -mx-2 transition-colors duration-150 ${onSelectToken ? 'hover:bg-white/[0.04] cursor-pointer' : ''}`}
+                                className={`w-full flex items-center justify-between text-xs px-3 py-2.5 transition-colors duration-150 ${i > 0 ? 'border-t border-white/[0.03]' : ''} ${onSelectToken ? 'hover:bg-white/[0.03] cursor-pointer' : ''}`}
                             >
-                                <div className="flex items-center gap-1.5">
-                                    <img src={token.logoUri} alt={token.symbol} className="w-4 h-4 rounded-full" />
-                                    <span className="text-text-muted">{token.symbol}</span>
+                                <div className="flex items-center gap-2">
+                                    <img src={token.logoUri} alt={token.symbol} className="w-5 h-5 rounded-full" />
+                                    <span className="text-text-secondary font-medium">{token.symbol}</span>
                                     <span className="text-foreground font-mono">{formatUsd(token.usd)}</span>
                                 </div>
-                                <span className="text-green-400 font-mono">+{formatUsd(tokenYearlyGain)}/yr</span>
+                                <span className="text-success font-mono font-medium">+{formatUsd(tokenYearlyGain)}/yr</span>
                             </button>
                         );
                     })}
@@ -121,12 +121,12 @@ export const SelectedOpportunity = ({
     return (
         <div className="flex justify-between text-sm">
             <div className="flex flex-col gap-0.5">
-                <span className="text-text-muted">Est. APY after deposit:</span>
-                <span className="text-text-muted">Est. Yearly gains:</span>
+                <span className="text-text-muted text-xs">Est. APY after deposit:</span>
+                <span className="text-text-muted text-xs">Est. Yearly gains:</span>
             </div>
             <div className="flex flex-col items-end gap-0.5">
-                <span className="font-mono text-accent font-semibold">{formatApy(estimatedNewApy)}</span>
-                <span className="font-mono text-green-400">+{formatUsd(estimatedYearlyGain)}/yr</span>
+                <span className="font-mono text-accent font-semibold text-xs gradient-text">{formatApy(estimatedNewApy)}</span>
+                <span className="font-mono text-success text-xs">+{formatUsd(estimatedYearlyGain)}/yr</span>
             </div>
         </div>
     );

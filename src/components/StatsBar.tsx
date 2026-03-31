@@ -3,23 +3,29 @@
 import { formatApy, formatUsd } from '@/lib/utils';
 import { StakingData } from '@/pages';
 
-function StatCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+export function StatsBar({ stakingData }: { stakingData: StakingData }) {
   return (
-    <div className="group relative bg-card-bg/80 border border-white/[0.06] rounded-2xl p-4 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:border-white/[0.1]">
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <p className="relative text-text-muted text-[11px] uppercase tracking-widest font-medium mb-2">{label}</p>
-      <p className={`relative text-xl font-bold font-mono tracking-tight ${highlight ? 'text-accent-hover' : 'text-foreground'}`}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
-export function StatsBar({ stakingData} : { stakingData: StakingData }) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <StatCard label="Current APY" value={formatApy(stakingData.apy)} highlight />
-      <StatCard label="TVL" value={formatUsd(stakingData.tvlUsd)} />
+    <div className="card-shine relative bg-card-bg border border-white/[0.05] rounded-2xl p-5 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.04] via-transparent to-transparent pointer-events-none" />
+      <div className="relative flex items-center">
+        <div className="flex-1 min-w-0">
+          <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium mb-1.5">
+            Current APY
+          </p>
+          <p className="text-3xl font-bold font-mono tracking-tight gradient-text">
+            {formatApy(stakingData.apy)}
+          </p>
+        </div>
+        <div className="w-px h-10 bg-white/[0.06] mx-6 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium mb-1.5">
+            Total Value Locked
+          </p>
+          <p className="text-3xl font-bold font-mono tracking-tight text-foreground">
+            {formatUsd(stakingData.tvlUsd)}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

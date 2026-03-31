@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08090d;
-  --foreground: #e8e8ed;
-  --card-bg: #10111a;
-  --card-border: #1a1b2e;
-  --accent: #7c3aed;
-  --accent-hover: #8b5cf6;
-  --accent-muted: rgba(124, 58, 237, 0.12);
-  --accent-glow: rgba(124, 58, 237, 0.25);
-  --success: #34d399;
-  --text-muted: #6b6b80;
-  --text-secondary: #9d9db5;
-  --surface: #0d0e16;
+  --background: #050810;
+  --foreground: #EDF1FF;
+  --card-bg: #0C1020;
+  --card-border: #141828;
+  --accent: #FFC042;
+  --accent-hover: #FFD166;
+  --accent-muted: rgba(255, 192, 66, 0.08);
+  --accent-glow: rgba(255, 192, 66, 0.22);
+  --cyan: #FFD700;
+  --success: #10D07A;
+  --text-muted: #4A5480;
+  --text-secondary: #7E8CB4;
+  --surface: #080B17;
 }
 
 @theme inline {
@@ -24,6 +25,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-muted: var(--accent-muted);
   --color-accent-glow: var(--accent-glow);
+  --color-cyan: var(--cyan);
   --color-success: var(--success);
   --color-text-muted: var(--text-muted);
   --color-text-secondary: var(--text-secondary);
@@ -50,8 +52,68 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Selection color */
 ::selection {
-  background: rgba(124, 58, 237, 0.3);
-  color: #fff;
+  background: rgba(255, 192, 66, 0.3);
+  color: #000;
+}
+
+/* Ambient page background */
+.page-bg {
+  background:
+    radial-gradient(ellipse 90% 55% at 10% -8%, rgba(255, 192, 66, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 105%, rgba(204, 140, 0, 0.04) 0%, transparent 50%),
+    var(--background);
+}
+
+/* Subtle dot-grid texture overlay */
+.dot-grid::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Gradient top-edge shine on cards */
+.card-shine {
+  position: relative;
+}
+.card-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 192, 66, 0.5),
+    rgba(255, 215, 0, 0.3),
+    transparent
+  );
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(130deg, var(--accent) 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient primary button base styles */
+.btn-primary {
+  background: linear-gradient(135deg, #CC8800 0%, #FFC042 50%, #FFD166 100%);
+  color: #0C0A00;
+  transition: opacity 0.18s, box-shadow 0.18s;
+}
+.btn-primary:hover {
+  opacity: 0.88;
+  box-shadow: 0 0 36px rgba(255, 192, 66, 0.35), 0 0 10px rgba(255, 215, 0, 0.15);
+}
+.btn-primary:active {
+  opacity: 0.82;
 }
