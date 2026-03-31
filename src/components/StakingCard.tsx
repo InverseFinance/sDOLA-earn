@@ -12,6 +12,7 @@ import { useEnsoRoute } from '@/hooks/useEnsoRoute';
 import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
 import { SavingsOpportunites, SelectedOpportunity } from './SavingsOpportunities';
 import { StakingData } from '@/pages';
+import { gaEvent } from '@/lib/analytics';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
@@ -190,6 +191,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
   useEffect(() => {
     if (isDepositConfirmed) {
+      gaEvent({ action: 'deposit', params: { category: 'staking', label: selectedToken.symbol, value: parseFloat(amount) || 0 } });
       setAmount('');
       refetchDola();
       refetchSdola();
@@ -201,6 +203,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
   useEffect(() => {
     if (isRedeemConfirmed) {
+      gaEvent({ action: 'withdraw', params: { category: 'staking', label: 'sDOLA', value: parseFloat(amount) || 0 } });
       setAmount('');
       refetchDola();
       refetchSdola();
@@ -227,6 +230,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
   useEffect(() => {
     if (ensoStep === 'routing' && isEnsoRouteConfirmed) {
+      gaEvent({ action: 'deposit', params: { category: 'staking', label: selectedToken.symbol, value: parseFloat(amount) || 0 } });
       setEnsoStep('idle');
       setAmount('');
       resetEnsoRoute();
@@ -266,6 +270,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   }
 
   function handleApprove() {
+    gaEvent({ action: 'approve', params: { category: 'staking', label: 'DOLA', value: 0 } });
     approve({
       address: DOLA_ADDRESS,
       abi: ERC20_ABI,
@@ -341,7 +346,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   // ── Button config ──
 
   function getButtonConfig(): { text: string; onClick: () => void; disabled: boolean } {
-    if (!isConnected) return { text: 'Connect Wallet', onClick: () => openConnectModal?.(), disabled: false };
+    if (!isConnected) return { text: 'Connect Wallet', onClick: () => { gaEvent({ action: 'connect_wallet_click', params: { category: 'wallet', label: 'staking_card', value: 0 } }); openConnectModal?.(); }, disabled: false };
     if (!amount || parsedAmount === 0n) return { text: 'Enter Amount', onClick: () => { }, disabled: true };
     if (insufficientBalance) return { text: 'Insufficient Balance', onClick: () => { }, disabled: true };
 
@@ -382,6 +387,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
           <button
             key={tab}
             onClick={() => {
+              gaEvent({ action: 'tab_switch', params: { category: 'staking', label: tab, value: 0 } });
               setActiveTab(tab);
               setAmount('');
               setSelectedToken(getDefaultToken(sortedTokens));
@@ -410,6 +416,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
             totalAssets={stakingData.totalAssets}
             tokens={sortedTokens}
             onSelectToken={(t) => {
+              gaEvent({ action: 'select_idle_stable', params: { category: 'opportunities', label: t.symbol, value: Math.round(t.usd || 0) } });
               setSelectedToken(t);
               setAmount(maxAmounts[t.address.toLowerCase()] ?? '');
             }}
@@ -449,7 +456,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               <TokenSelector
                 tokens={sortedTokens}
                 selected={selectedToken}
-                onSelect={(t) => { setSelectedToken(t); setAmount(''); }}
+                onSelect={(t) => { gaEvent({ action: 'select_token', params: { category: 'staking', label: t.symbol, value: 0 } }); setSelectedToken(t); setAmount(''); }}
                 balances={tokenBalances}
               />
             ) : (
