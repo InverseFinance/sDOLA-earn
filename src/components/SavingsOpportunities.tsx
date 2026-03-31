@@ -52,11 +52,11 @@ export const SavingsOpportunites = ({
         <div className="mb-3 border-b border-white/[0.04] pb-3 ">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full cursor-pointer flex items-center justify-between gap-2 text-sm hover:opacity-80 transition-opacity"
+                className="w-full cursor-pointer flex items-center justify-between gap-2 text-sm hover:opacity-80 transition-opacity flex-col sm:flex-row"
             >
                 <div className="flex items-center gap-1.5 min-w-0">
                     <span className="text-yellow-400 text-xs">◆</span>
-                    <span className="text-text-muted text-xs whitespace-nowrap">
+                    <span className="text-text-muted whitespace-nowrap">
                         Your idle stables: <span className="text-foreground font-mono">{formatUsd(totalIldeUsd)}</span>
                     </span>
                 </div>
