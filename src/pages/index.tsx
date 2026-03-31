@@ -14,18 +14,43 @@ export interface StakingData {
   dolaPriceUsd: number;
 }
 
-export const getServerSideProps: GetServerSideProps<{ data: StakingData | null }> = async () => {
+export interface ChartItemData {
+  apy: number;
+  timestamp: number;
+  tvlUsd: number;
+}
+
+export const getServerSideProps: GetServerSideProps<{ stakingData: StakingData, chartData: ChartItemData[] }> = async () => {
   try {
-    const res = await fetch('https://www.inverse.finance/api/dola-staking');
-    const data: StakingData = await res.json();
-    return { props: { data } };
+    const [
+      stakingData,
+      historyData,
+    ] = await Promise.all([
+      fetch('https://www.inverse.finance/api/dola-staking').then(r => r.json()),
+      fetch('https://www.inverse.finance/api/dola-staking/history').then(r => r.json()),
+    ]);
+
+    const chartData = historyData.totalEntries
+      .filter(e => e.timestamp != null && e.apy != null)
+      .map(e => ({
+        timestamp: e.timestamp,
+        apy: e.apy,
+        tvlUsd: e.tvlUsd || e.sDolaTotalAssets || 0,
+      }));
+
+    return {
+      props: {
+        stakingData,
+        chartData,
+      }
+    };
   } catch (e) {
     console.error(e);
-    return { props: { data: null } };
+    return { props: { stakingData: null, chartData: null } };
   }
 };
 
-export default function Home({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Home({ stakingData, chartData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const title = 'sDOLA Earn - Yield Bearing Stablecoin | Inverse Finance';
   const description = 'Earn passive stablecoin yield thanks to sDOLA. Non-custodial, audited, and always liquid. Start earning in one click.';
   return (
@@ -54,15 +79,15 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
         </div>
 
         <div>
-          {data ? (
-            <StatsBar stakingData={data} />
+          {stakingData ? (
+            <StatsBar stakingData={stakingData} chartData={chartData} />
           ) : (
             <div className="bg-card-bg border border-white/[0.05] rounded-2xl p-5 h-24 animate-pulse" />
           )}
         </div>
 
         <div>
-          <StakingCard stakingData={data} />
+          <StakingCard stakingData={stakingData} />
         </div>
 
         <p className="text-center text-text-muted/60 text-[11px] leading-relaxed px-2">
