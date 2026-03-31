@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { formatApy, formatUsd } from '@/lib/utils';
 import { StakingData, ChartItemData } from '@/pages';
 import { HistoryChart } from './HistoryChart';
@@ -23,6 +23,22 @@ export function StatsBar({
 
   const hasChart = !!chartData?.length;
 
+  const apy30d = useMemo(() => {
+    if (!chartData?.length) return null;
+    const cutoff = Date.now() - 30 * 86400 * 1000;
+    const recent = chartData.filter(d => d.timestamp >= cutoff);
+    if (!recent.length) return null;
+    return recent.reduce((sum, d) => sum + d.apy, 0) / recent.length;
+  }, [chartData]);
+
+  const tvl30d = useMemo(() => {
+    if (!chartData?.length) return null;
+    const cutoff = Date.now() - 30 * 86400 * 1000;
+    const recent = chartData.filter(d => d.timestamp >= cutoff && d.tvlUsd);
+    if (!recent.length) return null;
+    return recent.reduce((sum, d) => sum + d.tvlUsd, 0) / recent.length;
+  }, [chartData]);
+
   return (
     <div className="card-shine relative bg-card-bg border border-white/[0.05] rounded-2xl overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.04] via-transparent to-transparent pointer-events-none" />
@@ -33,9 +49,8 @@ export function StatsBar({
         <button
           onClick={() => toggle('apy')}
           disabled={!hasChart}
-          className={`flex-1 min-w-0 p-5 text-left transition-colors duration-150 ${
-            hasChart ? 'cursor-pointer hover:bg-white/[0.02]' : 'cursor-default'
-          } ${activeChart === 'apy' ? 'bg-white/[0.025]' : ''}`}
+          className={`flex-1 min-w-0 p-5 text-left transition-colors duration-150 ${hasChart ? 'cursor-pointer hover:bg-white/[0.02]' : 'cursor-default'
+            } ${activeChart === 'apy' ? 'bg-white/[0.025]' : ''}`}
         >
           <div className="flex items-center gap-1.5 mb-1.5">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
@@ -51,6 +66,11 @@ export function StatsBar({
           <p className="text-3xl font-bold font-mono tracking-tight gradient-text">
             {formatApy(stakingData.apy)}
           </p>
+          {apy30d != null && (
+            <p className="text-text-muted text-[10px] font-mono mt-1.5">
+              30d avg: <span className="text-text-secondary">{formatApy(apy30d)}</span>
+            </p>
+          )}
         </button>
 
         <div className="w-px bg-white/[0.05] self-stretch shrink-0" />
@@ -59,9 +79,8 @@ export function StatsBar({
         <button
           onClick={() => toggle('tvl')}
           disabled={!hasChart}
-          className={`flex-1 min-w-0 p-5 text-left transition-colors duration-150 ${
-            hasChart ? 'cursor-pointer hover:bg-white/[0.02]' : 'cursor-default'
-          } ${activeChart === 'tvl' ? 'bg-white/[0.025]' : ''}`}
+          className={`flex-1 min-w-0 p-5 text-left transition-colors duration-150 ${hasChart ? 'cursor-pointer hover:bg-white/[0.02]' : 'cursor-default'
+            } ${activeChart === 'tvl' ? 'bg-white/[0.025]' : ''}`}
         >
           <div className="flex items-center gap-1.5 mb-1.5">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
@@ -77,6 +96,11 @@ export function StatsBar({
           <p className="text-3xl font-bold font-mono tracking-tight text-foreground">
             {formatUsd(stakingData.tvlUsd)}
           </p>
+          {tvl30d != null && (
+            <p className="text-text-muted text-[10px] font-mono mt-1.5">
+              30d avg: <span className="text-text-secondary">{formatUsd(tvl30d)}</span>
+            </p>
+          )}
         </button>
       </div>
 

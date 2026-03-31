@@ -11,6 +11,7 @@ export interface StakingData {
   apy30d: number;
   tvlUsd: number;
   totalAssets: number;
+  totalAssets30d: number;
   dolaPriceUsd: number;
 }
 

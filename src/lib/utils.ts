@@ -1,13 +1,13 @@
 import { formatUnits } from 'viem';
 
-export function formatUsd(value: number): string {
+export function formatUsd(value: number, precision = 2): string {
   if (value >= 1_000_000) {
-    return `$${(value / 1_000_000).toFixed(2)}M`;
+    return `$${(value / 1_000_000).toFixed(precision)}M`;
   }
   if (value >= 1_000) {
-    return `$${(value / 1_000).toFixed(2)}K`;
+    return `$${(value / 1_000).toFixed(precision)}K`;
   }
-  return `$${value.toFixed(2)}`;
+  return `$${value.toFixed(precision)}`;
 }
 
 export function formatApy(value: number): string {
