@@ -65,6 +65,10 @@ export default function Home({ data }: InferGetServerSidePropsType<typeof getSer
           <StakingCard stakingData={data} />
         </div>
 
+        <p className="text-center text-text-muted/60 text-[11px] leading-relaxed px-2">
+          Disclaimer: the yield rates are variable and not guaranteed. While sDOLA is an audited ERC4626 vault, interacting with DeFi protocols involves risk, including the potential loss of funds or depeg of the stablecoin.
+        </p>
+
       </main>
       <Footer />
     </div>
