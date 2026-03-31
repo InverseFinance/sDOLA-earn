@@ -16,12 +16,28 @@ import { StakingData } from '@/pages';
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
 
+const PRIORITY_ADDRS = [
+  '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH
+  '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0', // wstETH
+  '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // WBTC
+];
+
+function getDefaultToken(tokens: SupportedToken[]): SupportedToken {
+  const withBal = tokens.filter(t => t.usd > 0);
+  const bestIdle = withBal.find(t => t.isIdleStable);
+  if (bestIdle) return bestIdle;
+  const bestPriority = withBal.find(t => PRIORITY_ADDRS.some(a => a.toLowerCase() === t.address.toLowerCase()));
+  if (bestPriority) return bestPriority;
+  return tokens.find(t => isDola(t.address)) ?? tokens[0];
+}
+
 export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   const [activeTab, setActiveTab] = useState<Tab>('stake');
   const [amount, setAmount] = useState('');
   const [selectedToken, setSelectedToken] = useState<SupportedToken>(SUPPORTED_TOKENS[0]);
   const [sortedTokens, setSortedTokens] = useState<SupportedToken[]>(SUPPORTED_TOKENS);
   const [tokenBalances, setTokenBalances] = useState<Record<string, string>>({});
+  const [maxAmounts, setMaxAmounts] = useState<Record<string, string>>({});
   const [ensoStep, setEnsoStep] = useState<EnsoStep>('idle');
 
   const { address, isConnected } = useAccount();
@@ -133,10 +149,14 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
     try {
       const balances = await fetchEnsoBalances(addr);
       const balMap: Record<string, string> = {};
+      const maxMap: Record<string, string> = {};
       for (const b of balances) {
-        balMap[b.token.toLowerCase()] = formatBalance(BigInt(b.amount), b.decimals);
+        const key = b.token.toLowerCase();
+        balMap[key] = formatBalance(BigInt(b.amount), b.decimals);
+        maxMap[key] = formatUnits(BigInt(b.amount), b.decimals);
       }
       setTokenBalances(balMap);
+      setMaxAmounts(maxMap);
 
       const withBalance: { token: SupportedToken; usd: number }[] = [];
       const withoutBalance: SupportedToken[] = [];
@@ -150,7 +170,9 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         }
       }
       withBalance.sort((a, b) => b.usd - a.usd);
-      setSortedTokens([...withBalance.map(w => w.token), ...withoutBalance]);
+      const sorted = [...withBalance.map(w => w.token), ...withoutBalance];
+      setSortedTokens(sorted);
+      setSelectedToken(getDefaultToken(sorted));
     } catch (err) {
       console.error('Failed to fetch Enso balances:', err);
     }
@@ -348,7 +370,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   const btn = getButtonConfig();
 
   const balanceDisplay = balance !== undefined
-    ? formatBalance(balance, balanceDecimals)
+    ? formatBalance(balance, balanceDecimals, 2)
     : tokenBalances[selectedToken.address.toLowerCase()] ?? '0';
 
   return (
@@ -362,7 +384,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
             onClick={() => {
               setActiveTab(tab);
               setAmount('');
-              setSelectedToken(SUPPORTED_TOKENS[0]);
+              setSelectedToken(getDefaultToken(sortedTokens));
               setEnsoStep('idle');
             }}
             className={`flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${
@@ -387,7 +409,10 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
             apy={stakingData.apy}
             totalAssets={stakingData.totalAssets}
             tokens={sortedTokens}
-            onSelectToken={(t) => { setSelectedToken(t); setTimeout(() => { handleMax() }, 0); }}
+            onSelectToken={(t) => {
+              setSelectedToken(t);
+              setAmount(maxAmounts[t.address.toLowerCase()] ?? '');
+            }}
           />
         </div>
 
