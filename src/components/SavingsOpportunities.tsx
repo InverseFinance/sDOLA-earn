@@ -15,7 +15,7 @@ export const estimateOppurtunities = ({
     totalAssets: number;
     dolaPriceUsd: number;
 }) => {
-    const totalIldeUsd = tokens.filter(t => t.isIdleStable).reduce((prev, curr) => prev + (curr.usd||0), 0);
+    const totalIldeUsd = tokens.filter(t => t.isIdleStable).reduce((prev, curr) => prev + (curr.usd || 0), 0);
     const newTotalAssetsIfInvested = totalAssets + (dolaPriceUsd ? totalIldeUsd / dolaPriceUsd : totalIldeUsd);
     const estimatedNewApy = newTotalAssetsIfInvested ? apy * (totalAssets / newTotalAssetsIfInvested) : 0;
     const estimatedYearlyGain = estimatedNewApy / 100 * totalIldeUsd;
@@ -51,24 +51,26 @@ export const SavingsOpportunites = ({
     return (
         <div className="mb-1">
             {/* Header row */}
-            <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-2 rounded-xl px-3 py-2.5 hover:bg-accent/[0.09] transition-colors duration-150"
-            >
-                <div className="flex items-center gap-2 min-w-0">
-                    {/* <span className="text-cyan text-[10px]">◆</span> */}
-                    <span className="text-text-secondary text-xs whitespace-nowrap">
-                        Your idle stables:{' '}
-                        <span className="text-foreground font-mono font-medium">{formatUsd(totalIldeUsd)}</span>
-                    </span>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-success font-mono font-semibold text-xs">
-                        You could earn ~{formatUsd(estimatedYearlyGain)}/yr
-                    </span>
-                    <span className="text-text-muted text-[9px]">{isExpanded ? '▼' : '▶'}</span>
-                </div>
-            </button>
+            {
+                totalIldeUsd > 1 && <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="w-full cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-2 rounded-xl px-3 py-2.5 hover:bg-accent/[0.09] transition-colors duration-150"
+                >
+                    <div className="flex items-center gap-2 min-w-0">
+                        {/* <span className="text-cyan text-[10px]">◆</span> */}
+                        <span className="text-text-secondary text-xs whitespace-nowrap">
+                            Your idle stables:{' '}
+                            <span className="text-foreground font-mono font-medium">{formatUsd(totalIldeUsd)}</span>
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-success font-mono font-semibold text-xs">
+                            You could earn ~{formatUsd(estimatedYearlyGain)}/yr
+                        </span>
+                        <span className="text-text-muted text-[9px]">{isExpanded ? '▼' : '▶'}</span>
+                    </div>
+                </button>
+            }
 
             {/* Token list */}
             {isExpanded && (
