@@ -347,12 +347,15 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
   const btn = getButtonConfig();
 
+  const balanceDisplay = balance !== undefined
+    ? formatBalance(balance, balanceDecimals)
+    : tokenBalances[selectedToken.address.toLowerCase()] ?? '0';
+
   return (
-    <div className="relative bg-card-bg/80 border border-white/[0.06] rounded-2xl p-5 sm:p-6 backdrop-blur-sm">
-      <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+    <div className="card-shine relative bg-card-bg border border-white/[0.05] rounded-2xl backdrop-blur-sm">
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface rounded-xl p-1 mb-6">
+      <div className="flex border-b border-white/[0.05]">
         {(['stake', 'unstake'] as Tab[]).map((tab) => (
           <button
             key={tab}
@@ -362,125 +365,136 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               setSelectedToken(SUPPORTED_TOKENS[0]);
               setEnsoStep('idle');
             }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab
-              ? 'bg-accent text-white shadow-[0_0_20px_rgba(124,58,237,0.2)]'
-              : 'text-text-muted hover:text-text-secondary'
-              }`}
+            className={`flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${
+              activeTab === tab
+                ? 'text-foreground'
+                : 'text-text-muted hover:text-text-secondary'
+            }`}
           >
             {tab === 'stake' ? 'Deposit' : 'Withdraw'}
+            {activeTab === tab && (
+              <span className="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
+            )}
           </button>
         ))}
       </div>
 
-      <div style={{ display: (activeTab === 'stake' ? 'block' : 'none') }}>
-        <SavingsOpportunites
-          apy={stakingData.apy}
-          totalAssets={stakingData.totalAssets}
-          tokens={sortedTokens}
-          onSelectToken={(t) => { setSelectedToken(t); setTimeout(() => { handleMax() }, 0); }}
-        />
-      </div>
+      <div className="p-5 sm:p-6 space-y-3">
 
-      {/* Balance */}
-      {isConnected && (
-        <div className="flex justify-between items-center mb-1 text-sm">
-          <span className="text-text-muted text-xs uppercase tracking-wider">Balance</span>
-          <button onClick={handleMax} className="text-text-secondary cursor-pointer hover:text-accent transition-colors duration-200 font-mono text-sm">
-            {balance !== undefined
-              ? formatBalance(balance, balanceDecimals)
-              : tokenBalances[selectedToken.address.toLowerCase()] ?? '0'
-            } {balanceLabel}
-          </button>
+        {/* Savings opportunities */}
+        <div style={{ display: (activeTab === 'stake' ? 'block' : 'none') }}>
+          <SavingsOpportunites
+            apy={stakingData.apy}
+            totalAssets={stakingData.totalAssets}
+            tokens={sortedTokens}
+            onSelectToken={(t) => { setSelectedToken(t); setTimeout(() => { handleMax() }, 0); }}
+          />
         </div>
-      )}
 
-      {/* Input */}
-      <div className="relative mb-2 group">
-        <input
-          type="number"
-          placeholder="0.0"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          disabled={ensoStep !== 'idle'}
-          className="w-full bg-surface border border-white/[0.06] rounded-xl px-4 py-4 pr-40 text-xl font-mono text-foreground placeholder:text-text-muted/50 focus:outline-none focus:border-accent/40 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.08)] transition-all duration-200 disabled:opacity-50"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-          <button
-            onClick={handleMax}
-            className="text-accent text-[11px] font-bold uppercase tracking-wider hover:text-accent-hover transition-colors duration-200 px-2 py-1 rounded-md hover:bg-accent/10"
-          >
-            Max
-          </button>
-          {activeTab === 'stake' ? (
-            <TokenSelector
-              tokens={sortedTokens}
-              selected={selectedToken}
-              onSelect={(t) => { setSelectedToken(t); setAmount(''); }}
-              balances={tokenBalances}
-            />
-          ) : (
-            <span className="text-text-muted/60 text-xs font-medium">sDOLA</span>
-          )}
-        </div>
-      </div>
+        {/* Input container */}
+        <div className="bg-surface/50 border border-white/[0.04] rounded-xl p-4">
+          {/* Label + balance row */}
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
+              {activeTab === 'stake' ? 'You Deposit' : 'You Withdraw'}
+            </span>
+            {isConnected && (
+              <button
+                onClick={handleMax}
+                className="flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary transition-colors duration-150 cursor-pointer group"
+              >
+                <span>Bal: </span>
+                <span className="font-mono">{balanceDisplay} {balanceLabel}</span>
+                <span className="text-accent font-semibold ml-1 group-hover:text-accent-hover transition-colors">MAX</span>
+              </button>
+            )}
+          </div>
 
-      {/* Preview — Deposit */}
-      {parsedAmount > 0n && activeTab === 'stake' && (
-        <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
-          {selectedToken.isIdleStable ? (
-            <SelectedOpportunity
-              token={selectedToken}
-              apy={stakingData.apy}
-              totalAssets={stakingData.totalAssets}
-              dolaPriceUsd={stakingData.dolaPriceUsd ?? 1}
-              amount={parseFloat(amount) || 0}
+          {/* Amount + token selector row */}
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={ensoStep !== 'idle'}
+              className="flex-1 min-w-0 bg-transparent text-2xl font-mono text-foreground placeholder:text-white/[0.15] focus:outline-none disabled:opacity-40 transition-opacity"
             />
-          ) : isDola(selectedToken.address) ? (
-            previewShares !== undefined ? (
-              <div className="flex justify-between text-sm">
-                <span className="text-text-muted">You will receive</span>
-                <span className="font-mono text-foreground">{formatBalance(previewShares, 2)} sDOLA</span>
+            {activeTab === 'stake' ? (
+              <TokenSelector
+                tokens={sortedTokens}
+                selected={selectedToken}
+                onSelect={(t) => { setSelectedToken(t); setAmount(''); }}
+                balances={tokenBalances}
+              />
+            ) : (
+              <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.06] rounded-xl px-3 py-2 shrink-0">
+                <span className="text-sm font-semibold text-foreground">sDOLA</span>
               </div>
-            ) : null
-          ) : ensoRoute.isLoading ? (
-            <div className="flex justify-center py-1">
-              <span className="inline-block w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-            </div>
-          ) : ensoRoute.amountOut ? (
-            <div className="flex justify-between text-sm">
-              <span className="text-text-muted">Estimated output</span>
-              <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
-            </div>
-          ) : ensoRoute.error ? (
-            <div className="text-sm text-red-400 text-center">{ensoRoute.error}</div>
-          ) : null}
-        </div>
-      )}
-
-      {/* Preview — Withdraw */}
-      {parsedAmount > 0n && activeTab === 'unstake' && previewAssets !== undefined && (
-        <div className="bg-surface border border-white/[0.04] rounded-xl px-4 py-3 mb-5">
-          <div className="flex justify-between text-sm">
-            <span className="text-text-muted">You will receive</span>
-            <span className="font-mono text-foreground">{formatBalance(previewAssets, 2)} DOLA</span>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Action Button */}
-      <button
-        onClick={btn.onClick}
-        disabled={btn.disabled}
-        className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${btn.disabled
-          ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
-          : 'bg-accent hover:bg-accent-hover text-white cursor-pointer shadow-[0_0_24px_rgba(124,58,237,0.2)] hover:shadow-[0_0_32px_rgba(124,58,237,0.3)]'
-          }`}
-      >
-        {isPending && !btn.disabled && (
-          <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 align-middle" />
+        {/* Preview — Deposit */}
+        {parsedAmount > 0n && activeTab === 'stake' && (
+          <div className="border border-white/[0.04] rounded-xl px-4 py-3">
+            {selectedToken.isIdleStable ? (
+              <SelectedOpportunity
+                token={selectedToken}
+                apy={stakingData.apy}
+                totalAssets={stakingData.totalAssets}
+                dolaPriceUsd={stakingData.dolaPriceUsd ?? 1}
+                amount={parseFloat(amount) || 0}
+              />
+            ) : isDola(selectedToken.address) ? (
+              previewShares !== undefined ? (
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">You will receive</span>
+                  <span className="font-mono text-foreground">{formatBalance(previewShares, 2)} sDOLA</span>
+                </div>
+              ) : null
+            ) : ensoRoute.isLoading ? (
+              <div className="flex justify-center py-0.5">
+                <span className="inline-block w-4 h-4 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+              </div>
+            ) : ensoRoute.amountOut ? (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Estimated output</span>
+                <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
+              </div>
+            ) : ensoRoute.error ? (
+              <div className="text-sm text-red-400 text-center">{ensoRoute.error}</div>
+            ) : null}
+          </div>
         )}
-        {btn.text}
-      </button>
+
+        {/* Preview — Withdraw */}
+        {parsedAmount > 0n && activeTab === 'unstake' && previewAssets !== undefined && (
+          <div className="border border-white/[0.04] rounded-xl px-4 py-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-text-muted">You will receive</span>
+              <span className="font-mono text-foreground">{formatBalance(previewAssets, 2)} DOLA</span>
+            </div>
+          </div>
+        )}
+
+        {/* Action Button */}
+        <button
+          onClick={btn.onClick}
+          disabled={btn.disabled}
+          className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${
+            btn.disabled
+              ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
+              : 'btn-primary text-[#1A0E00] cursor-pointer'
+          }`}
+        >
+          {isPending && !btn.disabled && (
+            <span className="inline-block w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin mr-2 align-middle" />
+          )}
+          {btn.text}
+        </button>
+
+      </div>
     </div>
   );
 }
