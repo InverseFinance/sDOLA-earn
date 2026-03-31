@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { Header } from '@/components/Header';
 import { StatsBar } from '@/components/StatsBar';
 import { StakingCard } from '@/components/StakingCard';
+import { SdolaBalanceCard } from '@/components/SdolaBalanceCard';
 import { Footer } from '@/components/Footer';
 import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 
@@ -86,6 +87,10 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
             <div className="bg-card-bg border border-white/[0.05] rounded-2xl p-5 h-24 animate-pulse" />
           )}
         </div>
+
+        {stakingData && (
+          <SdolaBalanceCard stakingData={stakingData} />
+        )}
 
         <div>
           <StakingCard stakingData={stakingData} />
