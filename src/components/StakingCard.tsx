@@ -141,7 +141,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   const { sendTransaction: sendApprovalTx, data: ensoApprovalHash, isPending: isEnsoApprovalPending, isError: isEnsoApprovalError, reset: resetEnsoApproval } = useSendTransaction();
   const { isLoading: isEnsoApprovalConfirming, isSuccess: isEnsoApprovalConfirmed } = useWaitForTransactionReceipt({ hash: ensoApprovalHash });
 
-  const { sendTransaction: sendRouteTx, data: ensoRouteHash, isPending: isEnsoRoutePending, reset: resetEnsoRoute } = useSendTransaction();
+  const { sendTransaction: sendRouteTx, data: ensoRouteHash, isPending: isEnsoRoutePending, isError: isEnsoRouteError, reset: resetEnsoRoute } = useSendTransaction();
   const { isLoading: isEnsoRouteConfirming, isSuccess: isEnsoRouteConfirmed } = useWaitForTransactionReceipt({ hash: ensoRouteHash });
 
   // ── Fetch Enso balances on wallet connect ──
@@ -234,6 +234,15 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
       });
     }
   }, [ensoStep, isEnsoApprovalConfirmed, ensoRoute.tx, sendRouteTx, resetEnsoApproval]);
+
+  // ── Enso flow: reset on route rejection/error ──
+
+  useEffect(() => {
+    if (ensoStep === 'routing' && isEnsoRouteError) {
+      resetEnsoRoute();
+      setEnsoStep('idle');
+    }
+  }, [ensoStep, isEnsoRouteError, resetEnsoRoute]);
 
   // ── Enso flow: route confirmed ──
 
@@ -403,7 +412,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               setSelectedToken(getDefaultToken(sortedTokens));
               setEnsoStep('idle');
             }}
-            className={`flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${
+            className={`cursor-pointer flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${
               activeTab === tab
                 ? 'text-foreground'
                 : 'text-text-muted hover:text-text-secondary'
@@ -515,7 +524,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
             <div className="flex justify-between text-sm">
               <span className="text-text-muted">You will receive</span>
-              <span className="font-mono text-foreground">{formatBalance(previewAssets, 2)} DOLA</span>
+              <span className="font-mono text-foreground">{formatBalance(previewAssets, 18, 2)} DOLA</span>
             </div>
           </div>
         )}
