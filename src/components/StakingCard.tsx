@@ -416,7 +416,6 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   }
 
   const btn = getButtonConfig();
-  console.log(selectedToken)
 
   const balanceDisplay = balance !== undefined
     ? formatBalance(balance, balanceDecimals, 2)

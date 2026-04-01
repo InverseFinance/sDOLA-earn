@@ -66,11 +66,18 @@ export function StatsBar({
           <p className="text-3xl font-bold font-mono tracking-tight gradient-text">
             {formatApy(stakingData.apy)}
           </p>
-          {apy30d != null && (
-            <p className="text-text-muted text-[10px] font-mono mt-1.5">
-              30d avg: <span className="text-text-secondary">{formatApy(apy30d)}</span>
-            </p>
-          )}
+          <span className="flex flex-row justify-between w-full mt-1.5">
+            {apy30d != null && (
+              <p className="text-text-muted text-[10px] font-mono ">
+                30d avg: <span className="text-text-secondary">{formatApy(apy30d)}</span>
+              </p>
+            )}
+            {apy30d != null && (
+              <p className="text-text-muted text-[10px] font-mono">
+                Projected: <span className="text-text-secondary">{formatApy(stakingData.projectedApy)}</span>
+              </p>
+            )}
+          </span>
         </button>
 
         <div className="w-px bg-white/[0.05] self-stretch shrink-0" />
