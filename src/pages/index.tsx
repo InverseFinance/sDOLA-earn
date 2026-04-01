@@ -99,14 +99,14 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
           <StakingCard stakingData={stakingData} />
         </div>
 
-        <p className="text-center text-text-muted/60 text-[12px] leading-relaxed px-2">
+        <p className="text-center text-text-muted text-[12px] leading-relaxed px-2">
           Disclaimer: the yield rates are variable and not guaranteed. While sDOLA is an audited ERC4626 vault, interacting with DeFi protocols involves risk, including the potential loss of funds or depeg of the stablecoin.
         </p>
 
         <div className="text-center">
           <button
             onClick={() => setShowTechDetails(v => !v)}
-            className="text-text-muted/60 cursor-pointer hover:text-text-muted text-[11px] transition-colors duration-150 inline-flex items-center gap-1.5"
+            className="text-text-muted/80 cursor-pointer hover:text-text-muted text-[11px] transition-colors duration-150 inline-flex items-center gap-1.5"
           >
             <span
               className="text-[8px] transition-transform duration-200 inline-block"

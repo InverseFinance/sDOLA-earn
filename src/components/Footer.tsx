@@ -25,7 +25,7 @@ export function Footer() {
           href="https://www.inverse.finance"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-text-muted/40 hover:text-text-muted/70 transition-colors duration-150 text-[11px] tracking-wide"
+          className="text-text-muted/80 hover:text-text-muted/70 transition-colors duration-150 text-[11px] tracking-wide"
         >
           Powered by Inverse Finance
         </a>
