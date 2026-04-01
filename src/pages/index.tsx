@@ -69,6 +69,14 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
         <meta property="og:url" content="https://sdola.inverse.finance" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="sDOLA Earn" />
+        <meta property="og:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@InverseFinance" />
+        <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
+
         <link rel="canonical" href="https://sdola.inverse.finance" />
       </Head>
       <Header />
