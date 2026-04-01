@@ -513,7 +513,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         </div>
 
         {/* Preview — Deposit */}
-        {parsedAmount > 0n && activeTab === 'stake' && (
+        {parsedAmount > 0n && activeTab === 'stake' && isConnected && (
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
             {selectedToken.price ? (
               <SelectedOpportunity
@@ -527,7 +527,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               previewShares !== undefined ? (
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted">{t.youWillReceive}</span>
-                  <span className="font-mono text-foreground">{formatBalance(previewShares, 2)} sDOLA</span>
+                  <span className="font-mono text-foreground">{formatBalance(previewShares, 18, 2)} sDOLA</span>
                 </div>
               ) : null
             ) : ensoRoute.isLoading ? (
