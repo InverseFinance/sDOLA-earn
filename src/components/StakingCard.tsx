@@ -13,6 +13,7 @@ import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
 import { SavingsOpportunites, SelectedOpportunity } from './SavingsOpportunities';
 import { StakingData } from '@/pages';
 import { gaEvent } from '@/lib/analytics';
+import { addTxToast } from '@/lib/toastStore';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
@@ -216,23 +217,23 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   // ── Recent transaction tracking ──
 
   useEffect(() => {
-    if (approveTxHash) addRecentTransaction({ hash: approveTxHash, description: 'Approve DOLA' });
+    if (approveTxHash) { addRecentTransaction({ hash: approveTxHash, description: 'Approve DOLA' }); addTxToast(approveTxHash, 'Approve DOLA'); }
   }, [approveTxHash, addRecentTransaction]);
 
   useEffect(() => {
-    if (depositTxHash) addRecentTransaction({ hash: depositTxHash, description: 'Deposit DOLA' });
+    if (depositTxHash) { addRecentTransaction({ hash: depositTxHash, description: 'Deposit DOLA' }); addTxToast(depositTxHash, 'Deposit DOLA'); }
   }, [depositTxHash, addRecentTransaction]);
 
   useEffect(() => {
-    if (redeemTxHash) addRecentTransaction({ hash: redeemTxHash, description: 'Withdraw sDOLA' });
+    if (redeemTxHash) { addRecentTransaction({ hash: redeemTxHash, description: 'Withdraw to DOLA' }); addTxToast(redeemTxHash, 'Withdraw to DOLA'); }
   }, [redeemTxHash, addRecentTransaction]);
 
   useEffect(() => {
-    if (ensoApprovalHash) addRecentTransaction({ hash: ensoApprovalHash, description: `Approve ${selectedToken.symbol}` });
+    if (ensoApprovalHash) { addRecentTransaction({ hash: ensoApprovalHash, description: `Approve ${selectedToken.symbol}` }); addTxToast(ensoApprovalHash, `Approve ${selectedToken.symbol}`); }
   }, [ensoApprovalHash, addRecentTransaction, selectedToken.symbol]);
 
   useEffect(() => {
-    if (ensoRouteHash) addRecentTransaction({ hash: ensoRouteHash, description: `Deposit ${selectedToken.symbol}` });
+    if (ensoRouteHash) { addRecentTransaction({ hash: ensoRouteHash, description: `Deposit ${selectedToken.symbol}` }); addTxToast(ensoRouteHash, `Deposit ${selectedToken.symbol}`); }
   }, [ensoRouteHash, addRecentTransaction, selectedToken.symbol]);
 
   // ── Enso flow: reset on approval rejection/error ──
@@ -411,7 +412,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
     }
 
     if (isRedeeming || isRedeemConfirming) return { text: 'Withdrawing...', onClick: () => { }, disabled: true };
-    return { text: 'Withdraw sDOLA', onClick: handleRedeem, disabled: false };
+    return { text: 'Withdraw to DOLA', onClick: handleRedeem, disabled: false };
   }
 
   const btn = getButtonConfig();
