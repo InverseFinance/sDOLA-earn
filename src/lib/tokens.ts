@@ -6,6 +6,7 @@ export interface SupportedToken {
   logoUri: string;
   isNative?: boolean;
   usd: number;
+  price?: number;
   isIdleStable?: boolean;
   isStablish?: boolean;
 }

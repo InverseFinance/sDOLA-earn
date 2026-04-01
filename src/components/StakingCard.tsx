@@ -166,7 +166,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         const found = balances.find(b => b.token.toLowerCase() === t.address.toLowerCase());
         if (found && BigInt(found.amount) > 0n) {
           const usd = Number(found.amount) * Number(found.price) / (10 ** found.decimals);
-          withBalance.push({ token: { ...t, usd }, usd });
+          withBalance.push({ token: { ...t, usd, price: Number(found.price) }, usd });
         } else {
           withoutBalance.push(t);
         }
@@ -415,6 +415,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   }
 
   const btn = getButtonConfig();
+  console.log(selectedToken)
 
   const balanceDisplay = balance !== undefined
     ? formatBalance(balance, balanceDecimals, 2)
@@ -512,13 +513,13 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         {/* Preview — Deposit */}
         {parsedAmount > 0n && activeTab === 'stake' && (
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
-            {selectedToken.isIdleStable ? (
+            {selectedToken.price ? (
               <SelectedOpportunity
                 token={selectedToken}
                 apy={stakingData.apy}
                 totalAssets={stakingData.totalAssets}
                 dolaPriceUsd={stakingData.dolaPriceUsd ?? 1}
-                amount={parseFloat(amount) || 0}
+                depositUsd={(parseFloat(amount) || 0) * selectedToken.price}
               />
             ) : isDola(selectedToken.address) ? (
               previewShares !== undefined ? (

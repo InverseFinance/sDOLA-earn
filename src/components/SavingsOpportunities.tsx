@@ -104,17 +104,16 @@ export const SelectedOpportunity = ({
     apy,
     totalAssets,
     dolaPriceUsd,
-    amount,
+    depositUsd,
 }: {
     token: SupportedToken
     apy: number
     totalAssets: number
     dolaPriceUsd: number
-    amount: number
+    depositUsd: number
 }) => {
-    if (!amount || amount <= 0) return null;
+    if (!depositUsd || depositUsd <= 0) return null;
 
-    const depositUsd = amount; // stablecoins: 1 token ≈ $1
     const depositDola = dolaPriceUsd ? depositUsd / dolaPriceUsd : depositUsd;
     const newTotalAssets = totalAssets + depositDola;
     const estimatedNewApy = newTotalAssets ? apy * (totalAssets / newTotalAssets) : 0;
