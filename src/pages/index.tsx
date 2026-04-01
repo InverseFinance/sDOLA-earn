@@ -7,6 +7,7 @@ import { SdolaBalanceCard } from '@/components/SdolaBalanceCard';
 import { Footer } from '@/components/Footer';
 import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 import { TechnicalDetails } from '@/components/TechnicalDetails';
+import { useLanguage } from '@/lib/useLanguage';
 
 export interface StakingData {
   apy: number;
@@ -56,6 +57,8 @@ export const getServerSideProps: GetServerSideProps<{ stakingData: StakingData, 
 
 export default function Home({ stakingData, chartData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [showTechDetails, setShowTechDetails] = useState(false);
+  const { t } = useLanguage();
+  const [earnPre, earnPost] = t.earnStableYieldWith.split('{token}');
   const title = 'sDOLA Earn - Yield Bearing Stablecoin | Inverse Finance';
   const description = 'Earn passive stablecoin yield thanks to sDOLA. Non-custodial, audited, and always liquid. Start earning in one click.';
   return (
@@ -84,10 +87,10 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
 
         <div className="text-center space-y-2 pt-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Earn stable yield with <span className="gradient-text">sDOLA</span>
+            {earnPre}<span className="gradient-text">sDOLA</span>{earnPost}
           </h1>
           <p className="text-text-secondary text-sm">
-            Automated &middot; Non-Custodial &middot; Stablecoin Yield
+            {t.tagline}
           </p>
         </div>
 
@@ -108,7 +111,7 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
         </div>
 
         <p className="text-center text-text-muted text-[12px] leading-relaxed px-2">
-          Disclaimer: the yield rates are variable and not guaranteed. While sDOLA is an audited ERC4626 vault, interacting with DeFi protocols involves risk, including the potential loss of funds or depeg of the stablecoin.
+          {t.disclaimer}
         </p>
 
         <div className="text-center">
@@ -120,7 +123,7 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
               className="text-[8px] transition-transform duration-200 inline-block"
               style={{ transform: showTechDetails ? 'rotate(90deg)' : 'rotate(0deg)' }}
             >▶</span>
-            {showTechDetails ? 'Hide technical details' : 'Show technical details'}
+            {showTechDetails ? t.hideTechDetails : t.showTechDetails}
           </button>
         </div>
 
