@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { StatsBar } from '@/components/StatsBar';
@@ -59,29 +58,8 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
   const [showTechDetails, setShowTechDetails] = useState(false);
   const { t } = useLanguage();
   const [earnPre, earnPost] = t.earnStableYieldWith.split('{token}');
-  const title = 'sDOLA Earn - Yield Bearing Stablecoin | Inverse Finance';
-  const description = 'Earn passive stablecoin yield thanks to sDOLA. Non-custodial, audited, and always liquid. Start earning in one click.';
   return (
     <div className="page-bg dot-grid flex flex-col min-h-screen">
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta name="keywords" content="sDOLA, DOLA, stablecoin, yield, staking, DeFi, Inverse Finance, decentralized finance, earn, ERC-4626" />
-        <meta name="og:title" content={title} />
-        <meta name="og:description" content={description} />
-        <meta name="og:url" content="https://sdola.inverse.finance" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-
-        <meta name="og:type" content="website" />
-        <meta name="og:site_name" content="sDOLA Earn" />
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@InverseFinance" />
-        <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
-
-        <link rel="canonical" href="https://sdola.inverse.finance" />
-      </Head>
       <Header />
       <main className="relative z-10 flex-1 px-4 py-10 max-w-lg mx-auto w-full space-y-5">
 

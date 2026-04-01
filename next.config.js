@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  i18n: {
+    locales: ['en', 'fr', 'zh', 'ko', 'ja', 'es', 'ru', 'tr', 'ar'],
+    defaultLocale: 'en',
+  },
   experimental: {
     esmExternals: 'loose',
   },

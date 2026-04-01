@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { createElement } from 'react';
+import { createContext, useContext, useState, useEffect, createElement, type ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import { translations, RTL_LANGS, type Lang, type Translations } from './i18n';
 
 type LangContextType = {
@@ -13,20 +13,21 @@ type LangContextType = {
 const LanguageContext = createContext<LangContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('en');
+  const router = useRouter();
+  const routerLocale = (router.locale ?? 'en') as Lang;
+  const initial: Lang = routerLocale in translations ? routerLocale : 'en';
+  const [lang, setLangState] = useState<Lang>(initial);
 
   useEffect(() => {
-    const saved = localStorage.getItem('lang') as Lang | null;
-    if (saved && saved in translations) {
-      setLangState(saved);
-      document.documentElement.dir = RTL_LANGS.includes(saved) ? 'rtl' : 'ltr';
-    }
-  }, []);
+    const newLang = (router.locale ?? 'en') as Lang;
+    const valid: Lang = newLang in translations ? newLang : 'en';
+    setLangState(valid);
+    document.documentElement.dir = RTL_LANGS.includes(valid) ? 'rtl' : 'ltr';
+    document.documentElement.lang = valid;
+  }, [router.locale]);
 
   function setLang(l: Lang) {
-    setLangState(l);
-    localStorage.setItem('lang', l);
-    document.documentElement.dir = RTL_LANGS.includes(l) ? 'rtl' : 'ltr';
+    router.push(router.pathname, router.asPath, { locale: l });
   }
 
   return createElement(

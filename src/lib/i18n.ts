@@ -4,9 +4,17 @@ export const LANG_LABELS: Record<Lang, string> = {
   en: 'EN', fr: 'FR', zh: 'ZH', ko: 'KO', ja: 'JA', es: 'ES', ru: 'RU', tr: 'TR', ar: 'AR',
 };
 
+export const LANG_FLAGS: Record<Lang, string> = {
+  en: '🇬🇧', fr: '🇫🇷', zh: '🇨🇳', ko: '🇰🇷', ja: '🇯🇵', es: '🇪🇸', ru: '🇷🇺', tr: '🇹🇷', ar: '🇸🇦',
+};
+
 export const RTL_LANGS: Lang[] = ['ar'];
 
 export interface Translations {
+  // SEO meta
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
   // Tabs
   tabDeposit: string;
   tabWithdraw: string;
@@ -69,6 +77,9 @@ export interface Translations {
 }
 
 const en: Translations = {
+  metaTitle: 'sDOLA Earn - Yield Bearing Stablecoin | Inverse Finance',
+  metaDescription: 'Earn passive stablecoin yield thanks to sDOLA. Non-custodial, audited, and always liquid. Start earning in one click.',
+  metaKeywords: 'sDOLA, DOLA, stablecoin, yield, staking, DeFi, Inverse Finance, decentralized finance, earn, ERC-4626',
   tabDeposit: 'Deposit',
   tabWithdraw: 'Withdraw',
   connectWallet: 'Connect Wallet',
@@ -122,6 +133,9 @@ const en: Translations = {
 };
 
 const fr: Translations = {
+  metaTitle: 'sDOLA Earn - Stablecoin à Rendement | Inverse Finance',
+  metaDescription: 'Générez un rendement passif sur stablecoin grâce à sDOLA. Non-custodial, audité et toujours liquide. Commencez à gagner en un clic.',
+  metaKeywords: 'sDOLA, DOLA, stablecoin, rendement, DeFi, Inverse Finance, finance décentralisée, gagner, ERC-4626',
   tabDeposit: 'Déposer',
   tabWithdraw: 'Retirer',
   connectWallet: 'Connecter le portefeuille',
@@ -175,6 +189,9 @@ const fr: Translations = {
 };
 
 const zh: Translations = {
+  metaTitle: 'sDOLA Earn - 生息稳定币 | Inverse Finance',
+  metaDescription: '通过 sDOLA 赚取被动稳定币收益。非托管、经过审计，始终保持流动性。一键开始赚取收益。',
+  metaKeywords: 'sDOLA, DOLA, 稳定币, 收益, DeFi, Inverse Finance, 去中心化金融, 赚取, ERC-4626',
   tabDeposit: '存入',
   tabWithdraw: '提取',
   connectWallet: '连接钱包',
@@ -228,6 +245,9 @@ const zh: Translations = {
 };
 
 const ko: Translations = {
+  metaTitle: 'sDOLA Earn - 수익 창출 스테이블코인 | Inverse Finance',
+  metaDescription: 'sDOLA로 안정적인 패시브 인컴을 창출하세요. 비수탁형, 감사 완료, 항상 유동적. 원클릭으로 수익 창출 시작.',
+  metaKeywords: 'sDOLA, DOLA, 스테이블코인, 수익, DeFi, Inverse Finance, 탈중앙화 금융, 수익 창출, ERC-4626',
   tabDeposit: '예치',
   tabWithdraw: '출금',
   connectWallet: '지갑 연결',
@@ -281,6 +301,9 @@ const ko: Translations = {
 };
 
 const ja: Translations = {
+  metaTitle: 'sDOLA Earn - 利回り付きステーブルコイン | Inverse Finance',
+  metaDescription: 'sDOLAで安定したパッシブインカムを獲得。非カストディアル、監査済み、常に流動的。ワンクリックで稼ぎ始めましょう。',
+  metaKeywords: 'sDOLA, DOLA, ステーブルコイン, 利回り, DeFi, Inverse Finance, 分散型金融, 稼ぐ, ERC-4626',
   tabDeposit: '預入',
   tabWithdraw: '引出',
   connectWallet: 'ウォレット接続',
@@ -334,6 +357,9 @@ const ja: Translations = {
 };
 
 const es: Translations = {
+  metaTitle: 'sDOLA Earn - Stablecoin con Rendimiento | Inverse Finance',
+  metaDescription: 'Genera rendimiento pasivo en stablecoins gracias a sDOLA. Sin custodia, auditado y siempre líquido. Comienza a ganar con un clic.',
+  metaKeywords: 'sDOLA, DOLA, stablecoin, rendimiento, DeFi, Inverse Finance, finanzas descentralizadas, ganar, ERC-4626',
   tabDeposit: 'Depositar',
   tabWithdraw: 'Retirar',
   connectWallet: 'Conectar billetera',
@@ -387,6 +413,9 @@ const es: Translations = {
 };
 
 const ru: Translations = {
+  metaTitle: 'sDOLA Earn - Доходный Стейблкоин | Inverse Finance',
+  metaDescription: 'Получайте пассивный доход в стейблкоинах с sDOLA. Без кастодиана, проверено аудитом, всегда ликвидно. Начните зарабатывать в один клик.',
+  metaKeywords: 'sDOLA, DOLA, стейблкоин, доходность, DeFi, Inverse Finance, децентрализованные финансы, заработок, ERC-4626',
   tabDeposit: 'Депозит',
   tabWithdraw: 'Вывод',
   connectWallet: 'Подключить кошелёк',
@@ -440,6 +469,9 @@ const ru: Translations = {
 };
 
 const tr: Translations = {
+  metaTitle: 'sDOLA Earn - Getirili Stablecoin | Inverse Finance',
+  metaDescription: 'sDOLA ile pasif stablecoin getirisi kazanın. Vedasüz, denetlenmiş ve her zaman likit. Tek tıkla kazanmaya başlayın.',
+  metaKeywords: 'sDOLA, DOLA, stablecoin, getiri, DeFi, Inverse Finance, merkeziyetsiz finans, kazanç, ERC-4626',
   tabDeposit: 'Yatır',
   tabWithdraw: 'Çek',
   connectWallet: 'Cüzdan bağla',
@@ -493,6 +525,9 @@ const tr: Translations = {
 };
 
 const ar: Translations = {
+  metaTitle: 'sDOLA Earn - عملة مستقرة مدرة للعائد | Inverse Finance',
+  metaDescription: 'احصل على عائد سلبي من العملات المستقرة بفضل sDOLA. غير حضاني، مدقق، وسيل دائماً. ابدأ الكسب بنقرة واحدة.',
+  metaKeywords: 'sDOLA, DOLA, عملة مستقرة, عائد, DeFi, Inverse Finance, تمويل لامركزي, كسب, ERC-4626',
   tabDeposit: 'إيداع',
   tabWithdraw: 'سحب',
   connectWallet: 'ربط المحفظة',

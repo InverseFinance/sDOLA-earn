@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useTheme } from '@/lib/useTheme';
 import { useLanguage } from '@/lib/useLanguage';
-import { LANG_LABELS, type Lang } from '@/lib/i18n';
+import { LANG_LABELS, LANG_FLAGS, type Lang } from '@/lib/i18n';
 import { useState, useRef, useEffect } from 'react';
 
 const LANGS = Object.entries(LANG_LABELS) as [Lang, string][];
@@ -61,9 +61,9 @@ export function Header() {
         className="relative w-8 h-8 rounded-full"
       />
     </div>
-    <div className="flex items-baseline gap-1.5">
+    <div className="flex flex-col items-baseline gap-0">
       <span className="font-bold text-sm tracking-tight gradient-text">sDOLA</span>
-      <span className="text-text-muted text-sm font-light tracking-wide">Earn</span>
+      <span className="text-text-muted text-xs font-light tracking-wide">Earn</span>
     </div>
   </div>
 
@@ -87,22 +87,24 @@ export function Header() {
         onClick={() => setOpen(v => !v)}
         className="text-text-muted hover:text-text-secondary transition-colors duration-150 px-2 py-1 rounded-lg hover:bg-white/[0.04] cursor-pointer text-[11px] font-medium tracking-wide flex items-center gap-1"
       >
-        {LANG_LABELS[lang]}
+        <span>{LANG_FLAGS[lang]}</span>
+        <span>{LANG_LABELS[lang]}</span>
         <span className="text-[8px]" style={{ display: 'inline-block', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 150ms' }}>▼</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-card-bg border border-white/[0.08] rounded-xl shadow-2xl py-1 min-w-[68px]">
+        <div className="absolute right-0 top-full mt-1 z-50 bg-card-bg border border-white/[0.08] rounded-xl shadow-2xl py-1 min-w-[86px]">
           {LANGS.map(([code, label]) => (
             <button
               key={code}
               onClick={() => { setLang(code); setOpen(false); }}
-              className={`w-full text-left px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors duration-150 cursor-pointer ${
+              className={`w-full text-left px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors duration-150 cursor-pointer flex items-center gap-2 ${
                 lang === code
                   ? 'text-accent'
                   : 'text-text-muted hover:text-text-secondary hover:bg-white/[0.03]'
               }`}
             >
-              {label}
+              <span>{LANG_FLAGS[code]}</span>
+              <span>{label}</span>
             </button>
           ))}
         </div>
