@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction, useBalance } from 'wagmi';
 import { parseUnits, formatUnits, maxUint256 } from 'viem';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useConnectModal, useAddRecentTransaction } from '@rainbow-me/rainbowkit';
 import { DOLA_ADDRESS, SDOLA_ADDRESS, ERC20_ABI, ERC4626_ABI } from '@/lib/contracts';
 import { formatBalance, formatTokenAmount } from '@/lib/utils';
 import { SUPPORTED_TOKENS, isDola, isNativeEth, type SupportedToken } from '@/lib/tokens';
@@ -43,6 +43,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
 
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
+  const addRecentTransaction = useAddRecentTransaction();
 
   // ── DOLA direct flow reads ──
 
@@ -211,6 +212,28 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
       if (address) loadBalances(address);
     }
   }, [isRedeemConfirmed, refetchDola, refetchSdola, resetRedeem, address, loadBalances]);
+
+  // ── Recent transaction tracking ──
+
+  useEffect(() => {
+    if (approveTxHash) addRecentTransaction({ hash: approveTxHash, description: 'Approve DOLA' });
+  }, [approveTxHash, addRecentTransaction]);
+
+  useEffect(() => {
+    if (depositTxHash) addRecentTransaction({ hash: depositTxHash, description: 'Deposit DOLA' });
+  }, [depositTxHash, addRecentTransaction]);
+
+  useEffect(() => {
+    if (redeemTxHash) addRecentTransaction({ hash: redeemTxHash, description: 'Withdraw sDOLA' });
+  }, [redeemTxHash, addRecentTransaction]);
+
+  useEffect(() => {
+    if (ensoApprovalHash) addRecentTransaction({ hash: ensoApprovalHash, description: `Approve ${selectedToken.symbol}` });
+  }, [ensoApprovalHash, addRecentTransaction, selectedToken.symbol]);
+
+  useEffect(() => {
+    if (ensoRouteHash) addRecentTransaction({ hash: ensoRouteHash, description: `Deposit ${selectedToken.symbol}` });
+  }, [ensoRouteHash, addRecentTransaction, selectedToken.symbol]);
 
   // ── Enso flow: reset on approval rejection/error ──
 

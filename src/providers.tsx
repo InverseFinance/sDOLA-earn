@@ -9,7 +9,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={client}>
-        <RainbowKitProvider modalSize="compact">
+        <RainbowKitProvider
+          modalSize="compact"
+          showRecentTransactions={true}
+          appInfo={{
+            appName: 'sDOLA Earn',
+            // learnMoreUrl: 'https://learnaboutcryptowallets.example',
+          }}
+        >
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>
