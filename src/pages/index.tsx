@@ -64,15 +64,15 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="keywords" content="sDOLA, DOLA, stablecoin, yield, staking, DeFi, Inverse Finance, decentralized finance, earn, ERC-4626" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content="https://sdola.inverse.finance" />
+        <meta name="og:title" content={title} />
+        <meta name="og:description" content={description} />
+        <meta name="og:url" content="https://sdola.inverse.finance" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
 
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="sDOLA Earn" />
-        <meta property="og:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
+        <meta name="og:type" content="website" />
+        <meta name="og:site_name" content="sDOLA Earn" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@InverseFinance" />
         <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
