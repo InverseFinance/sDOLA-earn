@@ -1,4 +1,10 @@
+'use client';
+
+import { useLanguage } from '@/lib/useLanguage';
+
 export function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="relative border-t border-white/[0.04] py-7 px-4">
       <div className="max-w-lg mx-auto flex flex-col items-center gap-3">
@@ -9,7 +15,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className="hover:text-text-secondary transition-colors duration-150"
           >
-            Documentation
+            {t.documentation}
           </a>
           <span className="w-px h-3 bg-white/[0.08]" />
           <a
@@ -18,7 +24,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className="hover:text-text-secondary transition-colors duration-150"
           >
-            Compare Yields
+            {t.compareYields}
           </a>
         </div>
         <a
@@ -27,7 +33,7 @@ export function Footer() {
           rel="noopener noreferrer"
           className="text-text-muted/80 hover:text-text-muted/70 transition-colors duration-150 text-[11px] tracking-wide"
         >
-          Powered by Inverse Finance
+          {t.poweredBy}
         </a>
       </div>
     </footer>

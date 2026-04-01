@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { SupportedToken } from "@/lib/tokens"
 import { formatUsd, formatApy } from '@/lib/utils';
+import { useLanguage } from '@/lib/useLanguage';
 
 export const estimateOppurtunities = ({
     apy,
@@ -42,11 +43,12 @@ export const SavingsOpportunites = ({
     onSelectToken?: (token: SupportedToken) => void;
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
+    const { t } = useLanguage();
     const { estimatedNewApy, totalIldeUsd, estimatedYearlyGain } = estimateOppurtunities({ apy, totalAssets, tokens, dolaPriceUsd });
 
     if (totalIldeUsd <= 0) return null;
 
-    const idleTokens = tokens.filter(t => t.isIdleStable && t.usd >= 1);
+    const idleTokens = tokens.filter(tok => tok.isIdleStable && tok.usd >= 1);
 
     return (
         <div className="mb-1">
@@ -57,15 +59,14 @@ export const SavingsOpportunites = ({
                     className="w-full cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-2 rounded-xl px-3 py-2.5 hover:bg-accent/[0.09] transition-colors duration-150"
                 >
                     <div className="flex items-center gap-2 min-w-0">
-                        {/* <span className="text-cyan text-[10px]">◆</span> */}
                         <span className="text-text-secondary text-xs whitespace-nowrap">
-                            Your idle stables:{' '}
+                            {t.yourIdleStables}{' '}
                             <span className="text-foreground font-mono font-medium">{formatUsd(totalIldeUsd)}</span>
                         </span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                         <span className="text-success font-mono font-semibold text-xs">
-                            You could earn ~{formatUsd(estimatedYearlyGain)}/yr
+                            {t.youCouldEarn.replace('{amount}', formatUsd(estimatedYearlyGain))}
                         </span>
                         <span className="text-text-muted text-[9px]">{isExpanded ? '▼' : '▶'}</span>
                     </div>
@@ -112,6 +113,8 @@ export const SelectedOpportunity = ({
     dolaPriceUsd: number
     depositUsd: number
 }) => {
+    const { t } = useLanguage();
+
     if (!depositUsd || depositUsd <= 0) return null;
 
     const depositDola = dolaPriceUsd ? depositUsd / dolaPriceUsd : depositUsd;
@@ -122,8 +125,8 @@ export const SelectedOpportunity = ({
     return (
         <div className="flex justify-between text-sm">
             <div className="flex flex-col gap-0.5">
-                <span className="text-text-muted text-xs">Est. APY after deposit:</span>
-                <span className="text-text-muted text-xs">Est. Yearly gains:</span>
+                <span className="text-text-muted text-xs">{t.estApyAfterDeposit}</span>
+                <span className="text-text-muted text-xs">{t.estYearlyGains}</span>
             </div>
             <div className="flex flex-col items-end gap-0.5">
                 <span className="font-mono text-accent font-semibold text-xs gradient-text">{formatApy(estimatedNewApy)}</span>

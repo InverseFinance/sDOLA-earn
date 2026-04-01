@@ -5,9 +5,7 @@ import { createPortal } from 'react-dom';
 import { formatApy, formatUsd } from '@/lib/utils';
 import { StakingData, ChartItemData } from '@/pages';
 import { HistoryChart } from './HistoryChart';
-
-const PROJECTED_APY_INFO =
-  "The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current week's auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%.";
+import { useLanguage } from '@/lib/useLanguage';
 
 type ActiveChart = 'apy' | 'tvl' | null;
 
@@ -22,6 +20,7 @@ export function StatsBar({
   const [showProjectedInfo, setShowProjectedInfo] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const infoRef = useRef<HTMLButtonElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!showProjectedInfo) return;
@@ -97,7 +96,7 @@ export function StatsBar({
         >
           <div className="flex items-center gap-1.5 mb-1.5">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
-              Current APY
+              {t.currentApy}
             </p>
             {hasChart && (
               <span className="text-text-muted text-[8px] transition-transform duration-200" style={{
@@ -112,13 +111,13 @@ export function StatsBar({
           <span className="flex flex-row justify-between w-full mt-1.5">
             {apy30d != null && (
               <p className="text-text-muted text-[10px] font-mono ">
-                30d avg: <span className="text-text-secondary">{formatApy(apy30d)}</span>
+                {t.avg30d} <span className="text-text-secondary">{formatApy(apy30d)}</span>
               </p>
             )}
             {apy30d != null && (
               <span className="flex items-center gap-1">
                 <p className="text-text-muted text-[10px] font-mono">
-                  Projected: <span className="text-text-secondary">{formatApy(stakingData.projectedApy)}</span>
+                  {t.projected} <span className="text-text-secondary">{formatApy(stakingData.projectedApy)}</span>
                 </p>
                 <button
                   ref={infoRef}
@@ -148,7 +147,7 @@ export function StatsBar({
         >
           <div className="flex items-center gap-1.5 mb-1.5">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
-              Total Value Locked
+              {t.totalValueLocked}
             </p>
             {hasChart && (
               <span className="text-text-muted text-[8px] transition-transform duration-200" style={{
@@ -162,7 +161,7 @@ export function StatsBar({
           </p>
           {tvl30d != null && (
             <p className="text-text-muted text-[10px] font-mono mt-1.5">
-              30d avg: <span className="text-text-secondary">{formatUsd(tvl30d)}</span>
+              {t.avg30d} <span className="text-text-secondary">{formatUsd(tvl30d)}</span>
             </p>
           )}
         </button>
@@ -174,10 +173,10 @@ export function StatsBar({
           className="fixed z-50 bg-card-bg border border-white/[0.08] rounded-xl p-3 shadow-2xl text-[11px] text-text-secondary leading-relaxed space-y-2.5"
           style={{ top: tooltipPos.top, left: tooltipPos.left, width: 288 }}
         >
-          <p>{PROJECTED_APY_INFO}</p>
+          <p>{t.projectedApyInfo}</p>
           <div className="border-t border-white/[0.06]" />
           <p>
-            The projected APY will become the current APY on{' '}
+            {t.projectedApyBecomesOn}{' '}
             <span className="text-foreground font-medium">{nextThursdayLabel}</span>.
           </p>
         </div>,
@@ -188,7 +187,7 @@ export function StatsBar({
       {activeChart && chartData && (
         <div className="relative border-t border-white/[0.04] px-5 pb-3">
           <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium pt-3 mb-1">
-            {activeChart === 'apy' ? 'APY History' : 'TVL History'}
+            {activeChart === 'apy' ? t.apyHistory : t.tvlHistory}
           </p>
           <HistoryChart data={chartData} type={activeChart} />
         </div>

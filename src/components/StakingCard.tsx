@@ -14,6 +14,7 @@ import { SavingsOpportunites, SelectedOpportunity } from './SavingsOpportunities
 import { StakingData } from '@/pages';
 import { gaEvent } from '@/lib/analytics';
 import { addTxToast } from '@/lib/toastStore';
+import { useLanguage } from '@/lib/useLanguage';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
@@ -45,6 +46,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const addRecentTransaction = useAddRecentTransaction();
+  const { t } = useLanguage();
 
   // ── DOLA direct flow reads ──
 
@@ -389,30 +391,30 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
   // ── Button config ──
 
   function getButtonConfig(): { text: string; onClick: () => void; disabled: boolean } {
-    if (!isConnected) return { text: 'Connect Wallet', onClick: () => { gaEvent({ action: 'connect_wallet_click', params: { category: 'wallet', label: 'staking_card', value: 0 } }); openConnectModal?.(); }, disabled: false };
-    if (!amount || parsedAmount === 0n) return { text: 'Enter Amount', onClick: () => { }, disabled: true };
-    if (insufficientBalance) return { text: 'Insufficient Balance', onClick: () => { }, disabled: true };
+    if (!isConnected) return { text: t.connectWallet, onClick: () => { gaEvent({ action: 'connect_wallet_click', params: { category: 'wallet', label: 'staking_card', value: 0 } }); openConnectModal?.(); }, disabled: false };
+    if (!amount || parsedAmount === 0n) return { text: t.enterAmount, onClick: () => { }, disabled: true };
+    if (insufficientBalance) return { text: t.insufficientBalance, onClick: () => { }, disabled: true };
 
     if (activeTab === 'stake') {
       if (usingEnso) {
-        if (ensoRoute.isLoading) return { text: 'Fetching Route...', onClick: () => { }, disabled: true };
-        if (ensoRoute.error) return { text: 'Route Error', onClick: () => { }, disabled: true };
-        if (!ensoRoute.tx) return { text: 'Enter Amount', onClick: () => { }, disabled: true };
+        if (ensoRoute.isLoading) return { text: t.fetchingRoute, onClick: () => { }, disabled: true };
+        if (ensoRoute.error) return { text: t.routeError, onClick: () => { }, disabled: true };
+        if (!ensoRoute.tx) return { text: t.enterAmount, onClick: () => { }, disabled: true };
         if (ensoStep === 'approving' || isEnsoApprovalPending || isEnsoApprovalConfirming)
-          return { text: 'Approving...', onClick: () => { }, disabled: true };
+          return { text: t.approving, onClick: () => { }, disabled: true };
         if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
-          return { text: 'Depositing...', onClick: () => { }, disabled: true };
-        return { text: `Deposit ${selectedToken.symbol}`, onClick: handleEnsoDeposit, disabled: false };
+          return { text: t.depositing, onClick: () => { }, disabled: true };
+        return { text: t.depositToken.replace('{symbol}', selectedToken.symbol), onClick: handleEnsoDeposit, disabled: false };
       } else {
-        if (isApproving || isApproveConfirming) return { text: 'Approving...', onClick: () => { }, disabled: true };
-        if (needsApproval) return { text: 'Approve DOLA', onClick: handleApprove, disabled: false };
-        if (isDepositing || isDepositConfirming) return { text: 'Depositing...', onClick: () => { }, disabled: true };
-        return { text: 'Deposit DOLA', onClick: handleDeposit, disabled: false };
+        if (isApproving || isApproveConfirming) return { text: t.approving, onClick: () => { }, disabled: true };
+        if (needsApproval) return { text: t.approveDola, onClick: handleApprove, disabled: false };
+        if (isDepositing || isDepositConfirming) return { text: t.depositing, onClick: () => { }, disabled: true };
+        return { text: t.depositDola, onClick: handleDeposit, disabled: false };
       }
     }
 
-    if (isRedeeming || isRedeemConfirming) return { text: 'Withdrawing...', onClick: () => { }, disabled: true };
-    return { text: 'Withdraw to DOLA', onClick: handleRedeem, disabled: false };
+    if (isRedeeming || isRedeemConfirming) return { text: t.withdrawing, onClick: () => { }, disabled: true };
+    return { text: t.withdrawToDola, onClick: handleRedeem, disabled: false };
   }
 
   const btn = getButtonConfig();
@@ -442,7 +444,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
                 : 'text-text-muted hover:text-text-secondary'
             }`}
           >
-            {tab === 'stake' ? 'Deposit' : 'Withdraw'}
+            {tab === 'stake' ? t.tabDeposit : t.tabWithdraw}
             {activeTab === tab && (
               <span className="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
             )}
@@ -471,16 +473,16 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
           {/* Label + balance row */}
           <div className="flex items-center justify-between mb-3">
             <span className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
-              {activeTab === 'stake' ? 'You Deposit' : 'You Withdraw'}
+              {activeTab === 'stake' ? t.youDeposit : t.youWithdraw}
             </span>
             {isConnected && (
               <button
                 onClick={handleMax}
                 className="flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary transition-colors duration-150 cursor-pointer group"
               >
-                <span>Bal: </span>
+                <span>{t.bal} </span>
                 <span className="font-mono">{balanceDisplay} {balanceLabel}</span>
-                <span className="text-accent font-semibold ml-1 group-hover:text-accent-hover transition-colors">MAX</span>
+                <span className="text-accent font-semibold ml-1 group-hover:text-accent-hover transition-colors">{t.max}</span>
               </button>
             )}
           </div>
@@ -524,7 +526,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
             ) : isDola(selectedToken.address) ? (
               previewShares !== undefined ? (
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">You will receive</span>
+                  <span className="text-text-muted">{t.youWillReceive}</span>
                   <span className="font-mono text-foreground">{formatBalance(previewShares, 2)} sDOLA</span>
                 </div>
               ) : null
@@ -534,7 +536,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               </div>
             ) : ensoRoute.amountOut ? (
               <div className="flex justify-between text-sm">
-                <span className="text-text-muted">Estimated output</span>
+                <span className="text-text-muted">{t.estimatedOutput}</span>
                 <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
               </div>
             ) : ensoRoute.error ? (
@@ -547,7 +549,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         {parsedAmount > 0n && activeTab === 'unstake' && previewAssets !== undefined && (
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
             <div className="flex justify-between text-sm">
-              <span className="text-text-muted">You will receive</span>
+              <span className="text-text-muted">{t.youWillReceive}</span>
               <span className="font-mono text-foreground">{formatBalance(previewAssets, 18, 2)} DOLA</span>
             </div>
           </div>

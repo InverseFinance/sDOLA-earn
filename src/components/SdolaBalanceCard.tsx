@@ -6,6 +6,7 @@ import { formatUnits } from 'viem';
 import { SDOLA_ADDRESS, ERC4626_ABI } from '@/lib/contracts';
 import { formatBalance } from '@/lib/utils';
 import { StakingData } from '@/pages';
+import { useLanguage } from '@/lib/useLanguage';
 
 const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
 
@@ -59,6 +60,8 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
     return () => clearInterval(interval);
   }, [hasBalance, stakingData?.apy, dolaEquivalent]);
 
+  const { t } = useLanguage();
+
   if (!hasBalance) return null;
 
   const sdolaFormatted = formatBalance(sdolaBalance, 18, 4);
@@ -74,13 +77,13 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
       <div className="relative p-5 space-y-4">
 
         <p className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
-          Your Position
+          {t.yourPosition}
         </p>
 
         <div className="flex">
           <div className="flex-1 min-w-0">
             <p className="text-text-muted text-[10px] tracking-[0.12em] font-medium mb-1.5">
-              sDOLA BALANCE
+              {t.sdolaBalance}
             </p>
             <p className="text-xl font-bold font-mono tracking-tight text-foreground tabular-nums">
               {sdolaFormatted}
@@ -91,7 +94,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
 
           <div className="flex-1 min-w-0">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.12em] font-medium mb-1.5">
-              in DOLA stablecoin terms
+              {t.inDolaTerms}
             </p>
             <p className="text-xl font-bold font-mono tracking-tight gradient-text tabular-nums">
               {displayDola ? withCommas(displayDola) : '—'}
@@ -103,7 +106,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
 
           <div className="flex-1 min-w-0">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.12em] font-medium mb-1.5">
-              Est. Monthly Yield
+              {t.estMonthlyYield}
             </p>
             <p className="text-lg font-bold font-mono tracking-tight text-foreground tabular-nums">
               {monthlyYieldUsd != null ? `$${withCommas(monthlyYieldUsd.toFixed(2))}` : '—'}
@@ -114,7 +117,7 @@ export function SdolaBalanceCard({ stakingData }: { stakingData: StakingData }) 
 
           <div className="flex-1 min-w-0">
             <p className="text-text-muted text-[10px] uppercase tracking-[0.12em] font-medium mb-1.5">
-              Est. Yearly Yield
+              {t.estYearlyYield}
             </p>
             <p className="text-lg font-bold font-mono tracking-tight text-foreground tabular-nums">
               {yearlyYieldUsd != null ? `$${withCommas(yearlyYieldUsd.toFixed(2))}` : '—'}
