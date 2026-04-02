@@ -438,11 +438,10 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               setSelectedToken(getDefaultToken(sortedTokens));
               setEnsoStep('idle');
             }}
-            className={`cursor-pointer flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${
-              activeTab === tab
-                ? 'text-foreground'
-                : 'text-text-muted hover:text-text-secondary'
-            }`}
+            className={`cursor-pointer flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${activeTab === tab
+              ? 'text-foreground'
+              : 'text-text-muted hover:text-text-secondary'
+              }`}
           >
             {tab === 'stake' ? t.tabDeposit : t.tabWithdraw}
             {activeTab === tab && (
@@ -452,9 +451,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         ))}
       </div>
 
-      <div className="p-5 sm:p-6 space-y-3">
-
-        {/* Savings opportunities */}
+      <div className="px-5 pt-5 sm:px-6">
         <div style={{ display: (activeTab === 'stake' ? 'block' : 'none') }}>
           <SavingsOpportunites
             apy={stakingData.apy}
@@ -467,7 +464,9 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
             }}
           />
         </div>
+      </div>
 
+      <div className="px-5 pb-5 sm:px-6 sm:pb-6 space-y-3">
         {/* Input container */}
         <div className="bg-surface/50 border border-white/[0.04] rounded-xl p-4">
           {/* Label + balance row */}
@@ -513,35 +512,39 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         </div>
 
         {/* Preview — Deposit */}
-        {parsedAmount > 0n && activeTab === 'stake' && isConnected && (
+        {parsedAmount > 0n && activeTab === 'stake' && (
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
-            {selectedToken.price ? (
+            {selectedToken.price || isDola(selectedToken.address) ? (
               <SelectedOpportunity
                 token={selectedToken}
                 apy={stakingData.apy}
                 totalAssets={stakingData.totalAssets}
                 dolaPriceUsd={stakingData.dolaPriceUsd ?? 1}
-                depositUsd={(parseFloat(amount) || 0) * selectedToken.price}
+                depositUsd={(parseFloat(amount) || 0) * (isDola(selectedToken.address) ? (stakingData.dolaPriceUsd || selectedToken.price || 1) : selectedToken.price)}
               />
-            ) : isDola(selectedToken.address) ? (
-              previewShares !== undefined ? (
-                <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">{t.youWillReceive}</span>
-                  <span className="font-mono text-foreground">{formatBalance(previewShares, 18, 2)} sDOLA</span>
-                </div>
-              ) : null
-            ) : ensoRoute.isLoading ? (
-              <div className="flex justify-center py-0.5">
-                <span className="inline-block w-4 h-4 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
-              </div>
-            ) : ensoRoute.amountOut ? (
-              <div className="flex justify-between text-sm">
-                <span className="text-text-muted">{t.estimatedOutput}</span>
-                <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
-              </div>
-            ) : ensoRoute.error ? (
-              <div className="text-sm text-red-400 text-center">{ensoRoute.error}</div>
-            ) : null}
+            )
+              :
+              !selectedToken.price && !isDola(selectedToken.address) && !isConnected && selectedToken.isStablish ? (
+                <SelectedOpportunity
+                  token={selectedToken}
+                  apy={stakingData.apy}
+                  totalAssets={stakingData.totalAssets}
+                  dolaPriceUsd={stakingData.dolaPriceUsd ?? 1}
+                  depositUsd={(parseFloat(amount) || 0) * 1}
+                />
+              ) :
+                ensoRoute.isLoading ? (
+                  <div className="flex justify-center py-0.5">
+                    <span className="inline-block w-4 h-4 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+                  </div>
+                ) : ensoRoute.amountOut ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">{t.estimatedOutput}</span>
+                    <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
+                  </div>
+                ) : ensoRoute.error ? (
+                  <div className="text-sm text-red-400 text-center">{ensoRoute.error}</div>
+                ) : null}
           </div>
         )}
 
@@ -559,11 +562,10 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
         <button
           onClick={btn.onClick}
           disabled={btn.disabled}
-          className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${
-            btn.disabled
-              ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
-              : 'btn-primary text-[#1A0E00] cursor-pointer'
-          }`}
+          className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${btn.disabled
+            ? 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
+            : 'btn-primary text-[#1A0E00] cursor-pointer'
+            }`}
         >
           {isPending && !btn.disabled && (
             <span className="inline-block w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin mr-2 align-middle" />
