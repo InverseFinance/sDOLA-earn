@@ -52,14 +52,6 @@ export function StatsBar({
 
   const hasChart = !!chartData?.length;
 
-  const apy30d = useMemo(() => {
-    if (!chartData?.length) return null;
-    const cutoff = Date.now() - 30 * 86400 * 1000;
-    const recent = chartData.filter(d => d.timestamp >= cutoff);
-    if (!recent.length) return null;
-    return recent.reduce((sum, d) => sum + d.apy, 0) / recent.length;
-  }, [chartData]);
-
   const nextThursdayLabel = useMemo(() => {
     const now = new Date();
     const daysUntil = ((4 - now.getUTCDay() + 7) % 7) || 7;
@@ -109,12 +101,12 @@ export function StatsBar({
             {formatApy(stakingData.apy)}
           </p>
           <span className="flex flex-row justify-between w-full mt-1.5">
-            {apy30d != null && (
+            {stakingData.apy30d != null && (
               <p className="text-text-muted text-[10px] font-mono ">
                 {t.avg30d} <span className="text-text-secondary">{formatApy(stakingData.apy30d)}</span>
               </p>
             )}
-            {apy30d != null && (
+            {stakingData.projectedApy != null && (
               <span className="flex items-center gap-1">
                 <p className="text-text-muted text-[10px] font-mono">
                   {t.projected} <span className="text-text-secondary">{formatApy(stakingData.projectedApy)}</span>
