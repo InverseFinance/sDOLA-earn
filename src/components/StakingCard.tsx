@@ -50,6 +50,10 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   const [tokenBalances, setTokenBalances] = useState<Record<string, string>>({});
   const [maxAmounts, setMaxAmounts] = useState<Record<string, string>>({});
   const [ensoStep, setEnsoStep] = useState<EnsoStep>('idle');
+  const [withdrawDestToken, setWithdrawDestToken] = useState<SupportedToken>(() => {
+    return withDefaultPrices(SUPPORTED_TOKENS, tokenPrices).find(t => isDola(t.address))!;
+  });
+  const [isMaxWithdraw, setIsMaxWithdraw] = useState(false);
 
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
@@ -98,7 +102,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
 
   const { data: ethBalanceData } = useBalance({ address, query: { enabled: !!address } });
 
-  // ── Parsed amount ──
+  // ── Parsed amount (DOLA terms for unstake, token terms for stake) ──
 
   const parsedAmount = (() => {
     try {
@@ -110,32 +114,52 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
 
   const amountInWei = parsedAmount > 0n ? parsedAmount.toString() : '0';
 
-  // ── Enso route (non-DOLA tokens only) ──
+  // ── Withdraw: convert DOLA input → sDOLA shares for routing ──
 
-  const ensoRoute = useEnsoRoute(
-    activeTab === 'stake' ? selectedToken.address : undefined,
+  const { data: withdrawSdolaAmount } = useReadContract({
+    address: SDOLA_ADDRESS,
+    abi: ERC4626_ABI,
+    functionName: 'convertToShares',
+    args: [parsedAmount],
+    query: { enabled: activeTab === 'unstake' && !isMaxWithdraw && parsedAmount > 0n },
+  });
+
+  // ── Withdraw: DOLA equivalent of full sDOLA balance (for MAX display) ──
+
+  const { data: sdolaBalanceInDola } = useReadContract({
+    address: SDOLA_ADDRESS,
+    abi: ERC4626_ABI,
+    functionName: 'convertToAssets',
+    args: [sdolaBalance ?? 0n],
+    query: { enabled: activeTab === 'unstake' && !!address && (sdolaBalance ?? 0n) > 0n },
+  });
+
+  // ── Computed sDOLA amount for withdrawal ──
+
+  const sdolaWithdrawBN: bigint = isMaxWithdraw
+    ? (sdolaBalance ?? 0n)
+    : (withdrawSdolaAmount ?? 0n);
+  const sdolaWithdrawAmountWei = sdolaWithdrawBN > 0n ? sdolaWithdrawBN.toString() : '0';
+
+  // ── Enso routes ──
+
+  const usingEnsoDeposit = activeTab === 'stake' && !isDola(selectedToken.address);
+  const usingEnsoWithdraw = activeTab === 'unstake' && !isDola(withdrawDestToken.address);
+
+  const ensoDepositRoute = useEnsoRoute(
+    usingEnsoDeposit ? selectedToken.address : undefined,
     amountInWei,
     address,
     selectedToken.isStablish,
   );
 
-  // ── DOLA preview reads ──
-
-  const { data: previewShares } = useReadContract({
-    address: SDOLA_ADDRESS,
-    abi: ERC4626_ABI,
-    functionName: 'convertToShares',
-    args: [parsedAmount],
-    query: { enabled: activeTab === 'stake' && isDola(selectedToken.address) && parsedAmount > 0n },
-  });
-
-  const { data: previewAssets } = useReadContract({
-    address: SDOLA_ADDRESS,
-    abi: ERC4626_ABI,
-    functionName: 'convertToAssets',
-    args: [parsedAmount],
-    query: { enabled: activeTab === 'unstake' && parsedAmount > 0n },
-  });
+  const ensoWithdrawRoute = useEnsoRoute(
+    usingEnsoWithdraw && sdolaWithdrawBN > 0n ? SDOLA_ADDRESS : undefined,
+    sdolaWithdrawAmountWei,
+    address,
+    withdrawDestToken.isStablish,
+    withdrawDestToken.address,
+  );
 
   // ── DOLA direct flow writes ──
 
@@ -217,6 +241,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
     if (isRedeemConfirmed) {
       gaEvent({ action: 'withdraw', params: { category: 'staking', label: 'sDOLA', value: parseFloat(amount) || 0 } });
       setAmount('');
+      setIsMaxWithdraw(false);
       refetchDola();
       refetchSdola();
       resetRedeem();
@@ -239,12 +264,22 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   }, [redeemTxHash, addRecentTransaction]);
 
   useEffect(() => {
-    if (ensoApprovalHash) { addRecentTransaction({ hash: ensoApprovalHash, description: `Approve ${selectedToken.symbol}` }); addTxToast(ensoApprovalHash, `Approve ${selectedToken.symbol}`); }
-  }, [ensoApprovalHash, addRecentTransaction, selectedToken.symbol]);
+    if (ensoApprovalHash) {
+      const label = activeTab === 'stake' ? `Approve ${selectedToken.symbol}` : 'Approve sDOLA';
+      addRecentTransaction({ hash: ensoApprovalHash, description: label });
+      addTxToast(ensoApprovalHash, label);
+    }
+  }, [ensoApprovalHash, addRecentTransaction, selectedToken.symbol, activeTab]);
 
   useEffect(() => {
-    if (ensoRouteHash) { addRecentTransaction({ hash: ensoRouteHash, description: `Deposit ${selectedToken.symbol}` }); addTxToast(ensoRouteHash, `Deposit ${selectedToken.symbol}`); }
-  }, [ensoRouteHash, addRecentTransaction, selectedToken.symbol]);
+    if (ensoRouteHash) {
+      const desc = activeTab === 'stake'
+        ? `Deposit ${selectedToken.symbol}`
+        : `Withdraw to ${withdrawDestToken.symbol}`;
+      addRecentTransaction({ hash: ensoRouteHash, description: desc });
+      addTxToast(ensoRouteHash, desc);
+    }
+  }, [ensoRouteHash, addRecentTransaction, selectedToken.symbol, withdrawDestToken.symbol, activeTab]);
 
   // ── Enso flow: reset on approval rejection/error ──
 
@@ -258,16 +293,19 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   // ── Enso flow: auto-advance from approval → route ──
 
   useEffect(() => {
-    if (ensoStep === 'approving' && isEnsoApprovalConfirmed && ensoRoute.tx) {
-      resetEnsoApproval();
-      setEnsoStep('routing');
-      sendRouteTx({
-        to: ensoRoute.tx.to as `0x${string}`,
-        data: ensoRoute.tx.data as `0x${string}`,
-        value: BigInt(ensoRoute.tx.value || '0'),
-      });
+    if (ensoStep === 'approving' && isEnsoApprovalConfirmed) {
+      const routeTx = activeTab === 'stake' ? ensoDepositRoute.tx : ensoWithdrawRoute.tx;
+      if (routeTx) {
+        resetEnsoApproval();
+        setEnsoStep('routing');
+        sendRouteTx({
+          to: routeTx.to as `0x${string}`,
+          data: routeTx.data as `0x${string}`,
+          value: BigInt(routeTx.value || '0'),
+        });
+      }
     }
-  }, [ensoStep, isEnsoApprovalConfirmed, ensoRoute.tx, sendRouteTx, resetEnsoApproval]);
+  }, [ensoStep, isEnsoApprovalConfirmed, ensoDepositRoute.tx, ensoWithdrawRoute.tx, activeTab, sendRouteTx, resetEnsoApproval]);
 
   // ── Enso flow: reset on route rejection/error ──
 
@@ -282,19 +320,20 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
 
   useEffect(() => {
     if (ensoStep === 'routing' && isEnsoRouteConfirmed) {
-      gaEvent({ action: 'deposit', params: { category: 'staking', label: selectedToken.symbol, value: parseFloat(amount) || 0 } });
+      const action = activeTab === 'stake' ? 'deposit' : 'withdraw';
+      const label = activeTab === 'stake' ? selectedToken.symbol : withdrawDestToken.symbol;
+      gaEvent({ action, params: { category: 'staking', label, value: parseFloat(amount) || 0 } });
       setEnsoStep('idle');
       setAmount('');
+      setIsMaxWithdraw(false);
       resetEnsoRoute();
       refetchSdola();
-      refetchSelectedBalance();
+      if (activeTab === 'stake') refetchSelectedBalance();
       if (address) loadBalances(address);
     }
-  }, [ensoStep, isEnsoRouteConfirmed, resetEnsoRoute, refetchSdola, refetchSelectedBalance, address, loadBalances]);
+  }, [ensoStep, isEnsoRouteConfirmed, resetEnsoRoute, refetchSdola, refetchSelectedBalance, address, loadBalances, activeTab, selectedToken.symbol, withdrawDestToken.symbol, amount]);
 
   // ── Derived state ──
-
-  const usingEnso = activeTab === 'stake' && !isDola(selectedToken.address);
 
   const stakeBalance = isDola(selectedToken.address)
     ? dolaBalance
@@ -302,22 +341,48 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
       ? ethBalanceData?.value
       : selectedTokenBalance;
 
-  const balance = activeTab === 'stake' ? stakeBalance : sdolaBalance;
-  const balanceLabel = activeTab === 'stake' ? selectedToken.symbol : 'sDOLA';
-  const balanceDecimals = activeTab === 'stake' ? selectedToken.decimals : 18;
-
   const needsApproval = activeTab === 'stake' && isDola(selectedToken.address) && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
-  const insufficientBalance = parsedAmount > 0n && balance !== undefined && parsedAmount > balance;
+
+  const insufficientBalance = parsedAmount > 0n && (
+    activeTab === 'stake'
+      ? (stakeBalance !== undefined && parsedAmount > stakeBalance)
+      : (!isMaxWithdraw && sdolaBalance !== undefined && sdolaWithdrawBN > 0n && sdolaWithdrawBN > sdolaBalance)
+  );
 
   const isDolaFlowPending = isApproving || isApproveConfirming || isDepositing || isDepositConfirming || isRedeeming || isRedeemConfirming;
   const isEnsoFlowPending = ensoStep !== 'idle' || isEnsoApprovalPending || isEnsoApprovalConfirming || isEnsoRoutePending || isEnsoRouteConfirming;
   const isPending = isDolaFlowPending || isEnsoFlowPending;
 
+  // ── Balance display ──
+
+  const stakeBalanceDisplay = stakeBalance !== undefined
+    ? formatBalance(stakeBalance, selectedToken.decimals, 2)
+    : tokenBalances[selectedToken.address.toLowerCase()] ?? '0';
+
+  const unstakeBalanceDisplay = sdolaBalanceInDola !== undefined
+    ? formatBalance(sdolaBalanceInDola, 18, 2)
+    : sdolaBalance !== undefined
+      ? formatBalance(sdolaBalance, 18, 2)
+      : '0';
+
+  const unstakeBalanceLabel = sdolaBalanceInDola !== undefined ? 'DOLA' : 'sDOLA';
+
+  const balanceDisplay = activeTab === 'stake' ? stakeBalanceDisplay : unstakeBalanceDisplay;
+  const balanceLabel = activeTab === 'stake' ? selectedToken.symbol : unstakeBalanceLabel;
+
   // ── Handlers ──
 
   function handleMax() {
-    if (balance) {
-      setAmount(formatUnits(balance, balanceDecimals));
+    if (activeTab === 'unstake') {
+      if (sdolaBalance && sdolaBalance > 0n) {
+        setIsMaxWithdraw(true);
+        const displayDola = sdolaBalanceInDola ?? sdolaBalance;
+        setAmount(formatUnits(displayDola, 18));
+      }
+      return;
+    }
+    if (stakeBalance) {
+      setAmount(formatUnits(stakeBalance, selectedToken.decimals));
     }
   }
 
@@ -347,20 +412,20 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
       address: SDOLA_ADDRESS,
       abi: ERC4626_ABI,
       functionName: 'redeem',
-      args: [parsedAmount, address, address],
+      args: [sdolaWithdrawBN, address, address],
     });
   }
 
   async function handleEnsoDeposit() {
-    if (!address || !ensoRoute.tx) return;
+    if (!address || !ensoDepositRoute.tx) return;
 
     // Native ETH: no approval needed
     if (isNativeEth(selectedToken.address)) {
       setEnsoStep('routing');
       sendRouteTx({
-        to: ensoRoute.tx.to as `0x${string}`,
-        data: ensoRoute.tx.data as `0x${string}`,
-        value: BigInt(ensoRoute.tx.value || '0'),
+        to: ensoDepositRoute.tx.to as `0x${string}`,
+        data: ensoDepositRoute.tx.data as `0x${string}`,
+        value: BigInt(ensoDepositRoute.tx.value || '0'),
       });
       return;
     }
@@ -390,9 +455,40 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
     // Already approved — send route directly
     setEnsoStep('routing');
     sendRouteTx({
-      to: ensoRoute.tx.to as `0x${string}`,
-      data: ensoRoute.tx.data as `0x${string}`,
-      value: BigInt(ensoRoute.tx.value || '0'),
+      to: ensoDepositRoute.tx.to as `0x${string}`,
+      data: ensoDepositRoute.tx.data as `0x${string}`,
+      value: BigInt(ensoDepositRoute.tx.value || '0'),
+    });
+  }
+
+  async function handleEnsoWithdraw() {
+    if (!address || !ensoWithdrawRoute.tx) return;
+
+    try {
+      const approval = await fetchEnsoApproval({
+        fromAddress: address,
+        tokenAddress: SDOLA_ADDRESS,
+        amount: sdolaWithdrawAmountWei,
+      });
+
+      if (approval.tx?.data && approval.tx.data !== '0x') {
+        setEnsoStep('approving');
+        sendApprovalTx({
+          to: approval.tx.to as `0x${string}`,
+          data: approval.tx.data as `0x${string}`,
+          value: BigInt(approval.tx.value || '0'),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error('Withdrawal approval check failed:', err);
+    }
+
+    setEnsoStep('routing');
+    sendRouteTx({
+      to: ensoWithdrawRoute.tx.to as `0x${string}`,
+      data: ensoWithdrawRoute.tx.data as `0x${string}`,
+      value: BigInt(ensoWithdrawRoute.tx.value || '0'),
     });
   }
 
@@ -404,10 +500,10 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
     if (insufficientBalance) return { text: t.insufficientBalance, onClick: () => { }, disabled: true };
 
     if (activeTab === 'stake') {
-      if (usingEnso) {
-        if (ensoRoute.isLoading) return { text: t.fetchingRoute, onClick: () => { }, disabled: true };
-        if (ensoRoute.error) return { text: t.routeError, onClick: () => { }, disabled: true };
-        if (!ensoRoute.tx) return { text: t.enterAmount, onClick: () => { }, disabled: true };
+      if (usingEnsoDeposit) {
+        if (ensoDepositRoute.isLoading) return { text: t.fetchingRoute, onClick: () => { }, disabled: true };
+        if (ensoDepositRoute.error) return { text: t.routeError, onClick: () => { }, disabled: true };
+        if (!ensoDepositRoute.tx) return { text: t.enterAmount, onClick: () => { }, disabled: true };
         if (ensoStep === 'approving' || isEnsoApprovalPending || isEnsoApprovalConfirming)
           return { text: t.approving, onClick: () => { }, disabled: true };
         if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
@@ -421,15 +517,24 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
       }
     }
 
+    // Unstake tab
+    if (usingEnsoWithdraw) {
+      const waitingForShares = !isMaxWithdraw && sdolaWithdrawBN === 0n;
+      if (ensoWithdrawRoute.isLoading || waitingForShares) return { text: t.fetchingRoute, onClick: () => { }, disabled: true };
+      if (ensoWithdrawRoute.error) return { text: t.routeError, onClick: () => { }, disabled: true };
+      if (!ensoWithdrawRoute.tx) return { text: t.enterAmount, onClick: () => { }, disabled: true };
+      if (ensoStep === 'approving' || isEnsoApprovalPending || isEnsoApprovalConfirming)
+        return { text: t.approving, onClick: () => { }, disabled: true };
+      if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
+        return { text: t.withdrawing, onClick: () => { }, disabled: true };
+      return { text: t.withdrawToToken.replace('{symbol}', withdrawDestToken.symbol), onClick: handleEnsoWithdraw, disabled: false };
+    }
+
     if (isRedeeming || isRedeemConfirming) return { text: t.withdrawing, onClick: () => { }, disabled: true };
     return { text: t.withdrawToDola, onClick: handleRedeem, disabled: false };
   }
 
   const btn = getButtonConfig();
-
-  const balanceDisplay = balance !== undefined
-    ? formatBalance(balance, balanceDecimals, 2)
-    : tokenBalances[selectedToken.address.toLowerCase()] ?? '0';
 
   return (
     <div className="card-shine relative bg-card-bg border border-white/[0.05] rounded-2xl backdrop-blur-sm">
@@ -445,6 +550,11 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               setAmount('');
               setSelectedToken(getDefaultToken(sortedTokens));
               setEnsoStep('idle');
+              setIsMaxWithdraw(false);
+              if (tab === 'unstake') {
+                const dola = sortedTokens.find(t => isDola(t.address)) ?? sortedTokens[0];
+                setWithdrawDestToken(dola);
+              }
             }}
             className={`cursor-pointer flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${activeTab === tab
               ? 'text-foreground'
@@ -500,7 +610,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               type="number"
               placeholder="0.00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => { setAmount(e.target.value); setIsMaxWithdraw(false); }}
               disabled={ensoStep !== 'idle'}
               className="flex-1 min-w-0 bg-transparent text-2xl font-mono text-foreground placeholder:text-white/[0.15] focus:outline-none disabled:opacity-40 transition-opacity"
             />
@@ -512,9 +622,17 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
                 balances={tokenBalances}
               />
             ) : (
-              <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.06] rounded-xl px-3 py-2 shrink-0">
-                <span className="text-sm font-semibold text-foreground">sDOLA</span>
-              </div>
+              <TokenSelector
+                tokens={sortedTokens}
+                selected={withdrawDestToken}
+                onSelect={(t) => {
+                  gaEvent({ action: 'select_withdraw_dest', params: { category: 'staking', label: t.symbol, value: 0 } });
+                  setWithdrawDestToken(t);
+                  setAmount('');
+                  setIsMaxWithdraw(false);
+                }}
+                balances={tokenBalances}
+              />
             )}
           </div>
         </div>
@@ -541,28 +659,54 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
                   depositUsd={(parseFloat(amount) || 0) * 1}
                 />
               ) :
-                ensoRoute.isLoading ? (
+                ensoDepositRoute.isLoading ? (
                   <div className="flex justify-center py-0.5">
                     <span className="inline-block w-4 h-4 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
                   </div>
-                ) : ensoRoute.amountOut ? (
+                ) : ensoDepositRoute.amountOut ? (
                   <div className="flex justify-between text-sm">
                     <span className="text-text-muted">{t.estimatedOutput}</span>
-                    <span className="font-mono text-foreground">~{formatTokenAmount(ensoRoute.amountOut, 18)} sDOLA</span>
+                    <span className="font-mono text-foreground">~{formatTokenAmount(ensoDepositRoute.amountOut, 18)} sDOLA</span>
                   </div>
-                ) : ensoRoute.error ? (
-                  <div className="text-sm text-red-400 text-center">{ensoRoute.error}</div>
+                ) : ensoDepositRoute.error ? (
+                  <div className="text-sm text-red-400 text-center">{ensoDepositRoute.error}</div>
                 ) : null}
           </div>
         )}
 
         {/* Preview — Withdraw */}
-        {parsedAmount > 0n && activeTab === 'unstake' && previewAssets !== undefined && (
+        {activeTab === 'unstake' && sdolaWithdrawBN > 0n && (
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-text-muted">{t.youWillReceive}</span>
-              <span className="font-mono text-foreground">{formatBalance(previewAssets, 18, 2)} DOLA</span>
-            </div>
+            {usingEnsoWithdraw ? (
+              ensoWithdrawRoute.isLoading ? (
+                <div className="flex justify-center py-0.5">
+                  <span className="inline-block w-4 h-4 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+                </div>
+              ) : ensoWithdrawRoute.amountOut ? (
+                <div className="flex justify-between items-start text-sm">
+                  <span className="text-text-muted">{t.estimatedOutput}</span>
+                  <div className="text-right">
+                    <div className="font-mono text-foreground">
+                      ~{formatTokenAmount(ensoWithdrawRoute.amountOut, withdrawDestToken.decimals)} {withdrawDestToken.symbol}
+                    </div>
+                    {withdrawDestToken.price ? (
+                      <div className="text-text-muted text-xs">
+                        ~${(Number(formatUnits(BigInt(ensoWithdrawRoute.amountOut), withdrawDestToken.decimals)) * withdrawDestToken.price).toFixed(2)}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ) : ensoWithdrawRoute.error ? (
+                <div className="text-sm text-red-400 text-center">{ensoWithdrawRoute.error}</div>
+              ) : null
+            ) : (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">{t.youWillReceive}</span>
+                <span className="font-mono text-foreground">
+                  ~{formatBalance(isMaxWithdraw ? (sdolaBalanceInDola ?? parsedAmount) : parsedAmount, 18, 2)} DOLA
+                </span>
+              </div>
+            )}
           </div>
         )}
 

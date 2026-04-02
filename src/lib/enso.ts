@@ -15,6 +15,7 @@ function getClient(): EnsoClient {
 export async function fetchEnsoRoute(params: {
   fromAddress: `0x${string}`;
   tokenIn: `0x${string}`;
+  tokenOut?: `0x${string}`;
   amountIn: string;
   slippage?: string;
 }) {
@@ -25,7 +26,7 @@ export async function fetchEnsoRoute(params: {
     receiver: params.fromAddress,
     routingStrategy: 'router',
     tokenIn: [params.tokenIn],
-    tokenOut: [SDOLA_ADDRESS],
+    tokenOut: [params.tokenOut ?? SDOLA_ADDRESS],
     amountIn: [params.amountIn],
     slippage: params.slippage ?? '10',
   });

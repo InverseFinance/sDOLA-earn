@@ -31,6 +31,7 @@ export interface Translations {
   depositToken: string; // contains {symbol}
   withdrawing: string;
   withdrawToDola: string;
+  withdrawToToken: string; // contains {symbol}
   // Input
   youDeposit: string;
   youWithdraw: string;
@@ -94,6 +95,7 @@ const en: Translations = {
   depositToken: 'Deposit {symbol}',
   withdrawing: 'Withdrawing...',
   withdrawToDola: 'Withdraw to DOLA',
+  withdrawToToken: 'Withdraw to {symbol}',
   youDeposit: 'You Deposit',
   youWithdraw: 'You Withdraw',
   bal: 'Bal:',
@@ -150,6 +152,7 @@ const fr: Translations = {
   depositToken: 'Déposer {symbol}',
   withdrawing: 'Retrait en cours...',
   withdrawToDola: 'Retirer en DOLA',
+  withdrawToToken: 'Retirer en {symbol}',
   youDeposit: 'Vous déposez',
   youWithdraw: 'Vous retirez',
   bal: 'Solde :',
@@ -206,6 +209,7 @@ const zh: Translations = {
   depositToken: '存入 {symbol}',
   withdrawing: '提取中...',
   withdrawToDola: '提取为 DOLA',
+  withdrawToToken: '提取为 {symbol}',
   youDeposit: '存入金额',
   youWithdraw: '提取金额',
   bal: '余额：',
@@ -262,6 +266,7 @@ const ko: Translations = {
   depositToken: '{symbol} 예치',
   withdrawing: '출금 중...',
   withdrawToDola: 'DOLA로 출금',
+  withdrawToToken: '{symbol}로 출금',
   youDeposit: '예치 금액',
   youWithdraw: '출금 금액',
   bal: '잔액:',
@@ -318,6 +323,7 @@ const ja: Translations = {
   depositToken: '{symbol} を預入',
   withdrawing: '引出中...',
   withdrawToDola: 'DOLA で引出',
+  withdrawToToken: '{symbol} で引出',
   youDeposit: '預入額',
   youWithdraw: '引出額',
   bal: '残高:',
@@ -374,6 +380,7 @@ const es: Translations = {
   depositToken: 'Depositar {symbol}',
   withdrawing: 'Retirando...',
   withdrawToDola: 'Retirar a DOLA',
+  withdrawToToken: 'Retirar a {symbol}',
   youDeposit: 'Depositas',
   youWithdraw: 'Retiras',
   bal: 'Saldo:',
@@ -430,6 +437,7 @@ const ru: Translations = {
   depositToken: 'Внести {symbol}',
   withdrawing: 'Вывод...',
   withdrawToDola: 'Вывести в DOLA',
+  withdrawToToken: 'Вывести в {symbol}',
   youDeposit: 'Вы вносите',
   youWithdraw: 'Вы выводите',
   bal: 'Баланс:',
@@ -486,6 +494,7 @@ const tr: Translations = {
   depositToken: '{symbol} yatır',
   withdrawing: 'Çekiliyor...',
   withdrawToDola: "DOLA'ya çek",
+  withdrawToToken: "{symbol}'ya çek",
   youDeposit: 'Yatırdığınız',
   youWithdraw: 'Çektiğiniz',
   bal: 'Bakiye:',
@@ -542,6 +551,7 @@ const ar: Translations = {
   depositToken: 'إيداع {symbol}',
   withdrawing: 'جارٍ السحب...',
   withdrawToDola: 'السحب إلى DOLA',
+  withdrawToToken: 'السحب إلى {symbol}',
   youDeposit: 'تودع',
   youWithdraw: 'تسحب',
   bal: 'الرصيد:',
