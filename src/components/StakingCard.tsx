@@ -31,7 +31,7 @@ function getDefaultToken(tokens: SupportedToken[]): SupportedToken {
   if (bestIdle) return bestIdle;
   const bestPriority = withBal.find(t => PRIORITY_ADDRS.some(a => a.toLowerCase() === t.address.toLowerCase()));
   if (bestPriority) return bestPriority;
-  return tokens.find(t => isDola(t.address)) ?? tokens[0];
+  return tokens.find(t => tokens[0]);
 }
 
 export function StakingCard({ stakingData }: { stakingData: StakingData }) {
