@@ -15,6 +15,7 @@ import { StakingData } from '@/pages';
 import { gaEvent } from '@/lib/analytics';
 import { addTxToast } from '@/lib/toastStore';
 import { useLanguage } from '@/lib/useLanguage';
+import { type TokenPrices } from '@/lib/fetchTokenPrices';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
@@ -34,11 +35,18 @@ function getDefaultToken(tokens: SupportedToken[]): SupportedToken {
   return tokens[0];
 }
 
-export function StakingCard({ stakingData }: { stakingData: StakingData }) {
+function withDefaultPrices(tokens: SupportedToken[], prices: TokenPrices): SupportedToken[] {
+  return tokens.map(t => ({
+    ...t,
+    price: prices[t.address.toLowerCase()] ?? t.price,
+  }));
+}
+
+export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: StakingData; tokenPrices?: TokenPrices }) {
   const [activeTab, setActiveTab] = useState<Tab>('stake');
   const [amount, setAmount] = useState('');
-  const [selectedToken, setSelectedToken] = useState<SupportedToken>(SUPPORTED_TOKENS[0]);
-  const [sortedTokens, setSortedTokens] = useState<SupportedToken[]>(SUPPORTED_TOKENS);
+  const [selectedToken, setSelectedToken] = useState<SupportedToken>(() => withDefaultPrices(SUPPORTED_TOKENS, tokenPrices)[0]);
+  const [sortedTokens, setSortedTokens] = useState<SupportedToken[]>(() => withDefaultPrices(SUPPORTED_TOKENS, tokenPrices));
   const [tokenBalances, setTokenBalances] = useState<Record<string, string>>({});
   const [maxAmounts, setMaxAmounts] = useState<Record<string, string>>({});
   const [ensoStep, setEnsoStep] = useState<EnsoStep>('idle');
@@ -171,7 +179,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
           const usd = Number(found.amount) * Number(found.price) / (10 ** found.decimals);
           withBalance.push({ token: { ...t, usd, price: Number(found.price) }, usd });
         } else {
-          withoutBalance.push(t);
+          withoutBalance.push({ ...t, price: tokenPrices[t.address.toLowerCase()] ?? t.price });
         }
       }
       withBalance.sort((a, b) => b.usd - a.usd);

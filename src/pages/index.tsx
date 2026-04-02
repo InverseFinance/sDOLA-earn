@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer';
 import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 import { TechnicalDetails } from '@/components/TechnicalDetails';
 import { useLanguage } from '@/lib/useLanguage';
+import { fetchTokenPrices, type TokenPrices } from '@/lib/fetchTokenPrices';
 
 export interface StakingData {
   apy: number;
@@ -24,14 +25,16 @@ export interface ChartItemData {
   tvlUsd: number;
 }
 
-export const getServerSideProps: GetServerSideProps<{ stakingData: StakingData, chartData: ChartItemData[] }> = async () => {
+export const getServerSideProps: GetServerSideProps<{ stakingData: StakingData, chartData: ChartItemData[], tokenPrices: TokenPrices }> = async () => {
   try {
     const [
       stakingData,
       historyData,
+      tokenPrices,
     ] = await Promise.all([
       fetch('https://www.inverse.finance/api/dola-staking').then(r => r.json()),
       fetch('https://www.inverse.finance/api/dola-staking/history').then(r => r.json()),
+      fetchTokenPrices(),
     ]);
 
     const chartData = historyData.totalEntries
@@ -46,15 +49,16 @@ export const getServerSideProps: GetServerSideProps<{ stakingData: StakingData, 
       props: {
         stakingData,
         chartData,
+        tokenPrices,
       }
     };
   } catch (e) {
     console.error(e);
-    return { props: { stakingData: null, chartData: null } };
+    return { props: { stakingData: null, chartData: null, tokenPrices: {} } };
   }
 };
 
-export default function Home({ stakingData, chartData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Home({ stakingData, chartData, tokenPrices }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [showTechDetails, setShowTechDetails] = useState(false);
   const { t } = useLanguage();
   const [earnPre, earnPost] = t.earnStableYieldWith.split('{token}');
@@ -85,7 +89,7 @@ export default function Home({ stakingData, chartData }: InferGetServerSideProps
         )}
 
         <div>
-          <StakingCard stakingData={stakingData} />
+          <StakingCard stakingData={stakingData} tokenPrices={tokenPrices ?? {}} />
         </div>
 
         <p className="text-center text-text-muted text-[12px] leading-relaxed px-2">
