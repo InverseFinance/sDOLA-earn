@@ -524,7 +524,7 @@ export function StakingCard({ stakingData }: { stakingData: StakingData }) {
               />
             )
               :
-              !selectedToken.price && !isDola(selectedToken.address) && !isConnected && selectedToken.isStablish ? (
+              !selectedToken.price && !isDola(selectedToken.address) && !isConnected && selectedToken.isIdleStable ? (
                 <SelectedOpportunity
                   token={selectedToken}
                   apy={stakingData.apy}
