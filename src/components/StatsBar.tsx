@@ -111,7 +111,7 @@ export function StatsBar({
           <span className="flex flex-row justify-between w-full mt-1.5">
             {apy30d != null && (
               <p className="text-text-muted text-[10px] font-mono ">
-                {t.avg30d} <span className="text-text-secondary">{formatApy(apy30d)}</span>
+                {t.avg30d} <span className="text-text-secondary">{formatApy(stakingData.apy30d)}</span>
               </p>
             )}
             {apy30d != null && (
