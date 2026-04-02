@@ -70,7 +70,7 @@ export function Header() {
   const connectBtnPart = <ConnectButton
     accountStatus={{ smallScreen: 'address', largeScreen: 'full' }}
     chainStatus={'icon'}
-    showBalance={{ smallScreen: false, largeScreen: true }}
+    showBalance={false}
   />;
 
   const themePart = <button
@@ -97,11 +97,10 @@ export function Header() {
             <button
               key={code}
               onClick={() => { setLang(code); setOpen(false); }}
-              className={`w-full text-left px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors duration-150 cursor-pointer flex items-center gap-2 ${
-                lang === code
+              className={`w-full text-left px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors duration-150 cursor-pointer flex items-center gap-2 ${lang === code
                   ? 'text-accent'
                   : 'text-text-muted hover:text-text-secondary hover:bg-white/[0.03]'
-              }`}
+                }`}
             >
               <span>{LANG_FLAGS[code]}</span>
               <span>{label}</span>
@@ -116,9 +115,8 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-background/60 backdrop-blur-xl border-b border-white/[0.04]">
       <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
         {sDolaPart}
-
+        {connectBtnPart}
         <div className="flex items-center gap-3">
-          {connectBtnPart}
           {langPart}
           {themePart}
         </div>
