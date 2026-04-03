@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { SupportedToken } from '@/lib/tokens';
 import { formatUsd } from '@/lib/utils';
+import Image from 'next/image';
 
 interface TokenSelectorProps {
   tokens: SupportedToken[];
@@ -36,7 +37,7 @@ export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSel
         onClick={() => setOpen(!open)}
         className="flex cursor-pointer items-center gap-2 bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.07] rounded-xl px-3 py-2 transition-all duration-150"
       >
-        <img src={selected.logoUri} alt={selected.symbol} width={20} height={20} className="rounded-full" />
+        <Image src={selected.logoUri} alt={selected.symbol} width={20} height={20} className="rounded-full" />
         <span className="text-sm font-semibold text-foreground">{selected.symbol}</span>
         <svg
           className={`w-3 h-3 text-text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
@@ -76,7 +77,7 @@ export function TokenSelector({ tokens, selected, onSelect, balances }: TokenSel
                   token.address === selected.address ? 'bg-accent/[0.08]' : 'hover:bg-white/[0.03]'
                 } ${i > 0 ? 'border-t border-white/[0.03]' : ''}`}
               >
-                <img src={token.logoUri} alt={token.symbol} width={28} height={28} className="rounded-full shrink-0" />
+                <Image src={token.logoUri} alt={token.symbol} width={28} height={28} className="rounded-full shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-foreground">{token.symbol}</div>
                   <div className="text-xs text-text-muted truncate">{token.name}</div>

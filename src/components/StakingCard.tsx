@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction, useBalance } from 'wagmi';
 import { parseUnits, formatUnits, maxUint256 } from 'viem';
 import { useConnectModal, useAddRecentTransaction } from '@rainbow-me/rainbowkit';
@@ -642,7 +643,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               />
             ) : (
               <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.06] rounded-xl px-3 py-2 shrink-0">
-                <img src={DOLA_TOKEN.logoUri} alt={DOLA_TOKEN.symbol} width={20} height={20} className="rounded-full" />
+                <Image src={DOLA_TOKEN.logoUri} alt={DOLA_TOKEN.symbol} width={20} height={20} className="rounded-full" />
                 <span className="text-sm font-semibold text-text-muted">DOLA</span>
               </div>
             )}
