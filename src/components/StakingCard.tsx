@@ -718,7 +718,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               placeholder={'0.00'}
               value={amount}
               onChange={(e) => { setAmount(e.target.value); setIsMaxWithdraw(false); }}
-              disabled={ensoStep !== 'idle'}
+              disabled={ensoStep !== 'idle' || (activeTab === 'unstake' && balanceDisplay === '0')}
               className="flex-1 min-w-0 bg-transparent text-2xl font-mono text-foreground placeholder:text-white/[0.15] focus:outline-none disabled:opacity-40 transition-opacity"
             />
             {activeTab === 'stake' ? (
