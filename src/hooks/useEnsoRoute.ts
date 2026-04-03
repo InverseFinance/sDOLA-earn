@@ -24,7 +24,7 @@ export function useEnsoRoute(
   tokenIn: `0x${string}` | undefined,
   amountInWei: string,
   fromAddress: `0x${string}` | undefined,
-  isFromAndToStablish?: boolean,
+  slippage: string,
   tokenOut?: `0x${string}`,
 ): EnsoRouteResult {
   const [result, setResult] = useState<EnsoRouteResult>(EMPTY);
@@ -51,7 +51,7 @@ export function useEnsoRoute(
           tokenIn,
           tokenOut,
           amountIn: amountInWei,
-          slippage: isFromAndToStablish ? '10' : '100',
+          slippage,
         });
         if (abortRef.current !== id) return;
         setResult({
@@ -77,7 +77,7 @@ export function useEnsoRoute(
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [tokenIn, amountInWei, fromAddress, tokenOut]);
+  }, [tokenIn, amountInWei, fromAddress, slippage, tokenOut]);
 
   return result;
 }
