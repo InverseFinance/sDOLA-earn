@@ -51,7 +51,7 @@ export function useEnsoRoute(
           tokenIn,
           tokenOut,
           amountIn: amountInWei,
-          slippage: isFromStable ? '10' : '100',
+          slippage: isFromAndToStablish ? '10' : '100',
         });
         if (abortRef.current !== id) return;
         setResult({

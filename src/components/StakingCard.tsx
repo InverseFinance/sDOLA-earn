@@ -608,7 +608,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           <div className="flex items-center gap-3">
             <input
               type="number"
-              placeholder="0.00"
+              placeholder={activeTab === 'stake' ? '0.00' : '0.00 DOLA'}
               value={amount}
               onChange={(e) => { setAmount(e.target.value); setIsMaxWithdraw(false); }}
               disabled={ensoStep !== 'idle'}
@@ -622,17 +622,20 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
                 balances={tokenBalances}
               />
             ) : (
-              <TokenSelector
-                tokens={sortedTokens}
-                selected={withdrawDestToken}
-                onSelect={(t) => {
-                  gaEvent({ action: 'select_withdraw_dest', params: { category: 'staking', label: t.symbol, value: 0 } });
-                  setWithdrawDestToken(t);
-                  setAmount('');
-                  setIsMaxWithdraw(false);
-                }}
-                balances={tokenBalances}
-              />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-text-muted text-[10px] uppercase tracking-[0.1em]">{t.toLabel}:</span>
+                <TokenSelector
+                  tokens={sortedTokens}
+                  selected={withdrawDestToken}
+                  onSelect={(t) => {
+                    gaEvent({ action: 'select_withdraw_dest', params: { category: 'staking', label: t.symbol, value: 0 } });
+                    setWithdrawDestToken(t);
+                    setAmount('');
+                    setIsMaxWithdraw(false);
+                  }}
+                  balances={tokenBalances}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -675,7 +678,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
         )}
 
         {/* Preview — Withdraw */}
-        {activeTab === 'unstake' && sdolaWithdrawBN > 0n && (
+        {activeTab === 'unstake' && sdolaWithdrawBN > 0n && !isDola(withdrawDestToken.address) && (
           <div className="border border-white/[0.04] rounded-xl px-4 py-3">
             {usingEnsoWithdraw ? (
               ensoWithdrawRoute.isLoading ? (
