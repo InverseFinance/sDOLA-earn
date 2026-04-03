@@ -725,7 +725,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               <TokenSelector
                 tokens={sortedTokens}
                 selected={selectedToken}
-                onSelect={(t) => { gaEvent({ action: 'select_token', params: { category: 'staking', label: t.symbol, value: 0 } }); setSelectedToken(t); setAmount(''); }}
+                onSelect={(t) => { gaEvent({ action: 'select_token', params: { category: 'staking', label: t.symbol, value: 0 } }); setSelectedToken(t); if(!t.isIdleStable || !selectedToken.isIdleStable) setAmount(''); }}
                 balances={tokenBalances}
               />
             ) : (
