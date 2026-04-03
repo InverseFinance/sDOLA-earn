@@ -76,6 +76,7 @@ export interface Translations {
   disclaimer: string;
   showTechDetails: string;
   hideTechDetails: string;
+  slippageTolerance: string;
 }
 
 const en: Translations = {
@@ -134,6 +135,7 @@ const en: Translations = {
   disclaimer: 'Disclaimer: the yield rates are variable and not guaranteed. While sDOLA is an audited ERC4626 vault, interacting with DeFi protocols involves risk, including the potential loss of funds or depeg of the stablecoin.',
   showTechDetails: 'Show technical details',
   hideTechDetails: 'Hide technical details',
+  slippageTolerance: 'Slippage tolerance',
 };
 
 const fr: Translations = {
@@ -192,6 +194,7 @@ const fr: Translations = {
   disclaimer: 'Avertissement : les taux de rendement sont variables et non garantis. Bien que sDOLA soit un coffre ERC4626 audité, interagir avec des protocoles DeFi comporte des risques, notamment la perte potentielle de fonds ou le dépeg du stablecoin.',
   showTechDetails: 'Afficher les détails techniques',
   hideTechDetails: 'Masquer les détails techniques',
+  slippageTolerance: 'Tolérance au glissage',
 };
 
 const zh: Translations = {
@@ -250,6 +253,7 @@ const zh: Translations = {
   disclaimer: '免责声明：收益率为浮动利率，不作保证。虽然 sDOLA 是经过审计的 ERC4626 金库，但与 DeFi 协议交互存在风险，包括资金损失或稳定币脱锚的可能性。',
   showTechDetails: '显示技术详情',
   hideTechDetails: '隐藏技术详情',
+  slippageTolerance: '滑点容忍度',
 };
 
 const ko: Translations = {
@@ -308,6 +312,7 @@ const ko: Translations = {
   disclaimer: '면책조항: 수익률은 변동적이며 보장되지 않습니다. sDOLA는 감사된 ERC4626 볼트이지만, DeFi 프로토콜과의 상호작용에는 자금 손실이나 스테이블코인 페그 이탈 가능성을 포함한 위험이 수반됩니다.',
   showTechDetails: '기술 세부정보 표시',
   hideTechDetails: '기술 세부정보 숨기기',
+  slippageTolerance: '슬리피지 허용 범위',
 };
 
 const ja: Translations = {
@@ -366,6 +371,7 @@ const ja: Translations = {
   disclaimer: '免責事項：利回りは変動的であり、保証されません。sDOLA は監査済みの ERC4626 ボルトですが、DeFi プロトコルとのやり取りにはリスクが伴い、資金の損失やステーブルコインのデペッグの可能性があります。',
   showTechDetails: '技術詳細を表示',
   hideTechDetails: '技術詳細を非表示',
+  slippageTolerance: 'スリッページ許容度',
 };
 
 const es: Translations = {
@@ -424,6 +430,7 @@ const es: Translations = {
   disclaimer: 'Aviso: las tasas de rendimiento son variables y no están garantizadas. Aunque sDOLA es un vault ERC4626 auditado, interactuar con protocolos DeFi conlleva riesgos, incluida la posible pérdida de fondos o la desvinculación de la stablecoin.',
   showTechDetails: 'Mostrar detalles técnicos',
   hideTechDetails: 'Ocultar detalles técnicos',
+  slippageTolerance: 'Tolerancia al deslizamiento',
 };
 
 const ru: Translations = {
@@ -482,6 +489,7 @@ const ru: Translations = {
   disclaimer: 'Отказ от ответственности: доходность является переменной и не гарантируется. Несмотря на то, что sDOLA является проверенным ERC4626-хранилищем, взаимодействие с DeFi-протоколами сопряжено с рисками, включая возможную потерю средств или отвязку стейблкоина.',
   showTechDetails: 'Показать технические детали',
   hideTechDetails: 'Скрыть технические детали',
+  slippageTolerance: 'Допустимое проскальзывание',
 };
 
 const tr: Translations = {
@@ -540,6 +548,7 @@ const tr: Translations = {
   disclaimer: "Sorumluluk reddi: getiri oranları değişkendir ve garanti edilmez. sDOLA denetlenmiş bir ERC4626 kasası olsa da, DeFi protokolleriyle etkileşim, fon kaybı veya stablecoin'in sabitinin bozulması dahil olmak üzere risk içerir.",
   showTechDetails: 'Teknik ayrıntıları göster',
   hideTechDetails: 'Teknik ayrıntıları gizle',
+  slippageTolerance: 'Kayma toleransı',
 };
 
 const ar: Translations = {
@@ -598,6 +607,7 @@ const ar: Translations = {
   disclaimer: 'إخلاء مسؤولية: معدلات العائد متغيرة وغير مضمونة. على الرغم من أن sDOLA خزنة ERC4626 مدققة، فإن التفاعل مع بروتوكولات DeFi ينطوي على مخاطر، بما في ذلك احتمال خسارة الأموال أو فك ارتباط العملة المستقرة.',
   showTechDetails: 'إظهار التفاصيل التقنية',
   hideTechDetails: 'إخفاء التفاصيل التقنية',
+  slippageTolerance: 'هامش الانزلاق السعري',
 };
 
 export const translations: Record<Lang, Translations> = {

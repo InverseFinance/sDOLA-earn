@@ -644,7 +644,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           {showSlippage && (
             <div className="absolute top-full right-0 z-20 mt-1 bg-card-bg border border-white/[0.08] rounded-xl p-3 shadow-xl w-64">
               <div className="text-[10px] uppercase tracking-[0.15em] text-text-muted font-medium mb-2.5">
-                Slippage tolerance
+                {t.slippageTolerance}
               </div>
               <div className="flex flex-wrap gap-1.5">
                 <button
