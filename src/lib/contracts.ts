@@ -50,6 +50,17 @@ export const ERC4626_ABI = [
     outputs: [{ type: 'uint256' }],
   },
   {
+    name: 'withdraw',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'assets', type: 'uint256' },
+      { name: 'receiver', type: 'address' },
+      { name: 'owner', type: 'address' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
     name: 'redeem',
     type: 'function',
     stateMutability: 'nonpayable',

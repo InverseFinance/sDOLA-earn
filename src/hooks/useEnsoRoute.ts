@@ -24,13 +24,19 @@ export function useEnsoRoute(
   tokenIn: `0x${string}` | undefined,
   amountInWei: string,
   fromAddress: `0x${string}` | undefined,
-  isFromStable?: boolean,
+  slippage: string,
+  tokenOut?: `0x${string}`,
 ): EnsoRouteResult {
   const [result, setResult] = useState<EnsoRouteResult>(EMPTY);
   const abortRef = useRef(0);
 
   useEffect(() => {
-    if (!tokenIn || !fromAddress || isDola(tokenIn) || amountInWei === '0' || amountInWei === '') {
+    if (!tokenIn || !fromAddress || amountInWei === '0' || amountInWei === '') {
+      setResult(EMPTY);
+      return;
+    }
+    // For deposit flow (no explicit tokenOut): skip if tokenIn is DOLA
+    if (!tokenOut && isDola(tokenIn)) {
       setResult(EMPTY);
       return;
     }
@@ -43,8 +49,9 @@ export function useEnsoRoute(
         const route = await fetchEnsoRoute({
           fromAddress,
           tokenIn,
+          tokenOut,
           amountIn: amountInWei,
-          slippage: isFromStable ? '10' : '100',
+          slippage,
         });
         if (abortRef.current !== id) return;
         setResult({
@@ -70,7 +77,7 @@ export function useEnsoRoute(
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [tokenIn, amountInWei, fromAddress]);
+  }, [tokenIn, amountInWei, fromAddress, slippage, tokenOut]);
 
   return result;
 }

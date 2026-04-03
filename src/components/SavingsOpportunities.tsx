@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SupportedToken } from "@/lib/tokens"
 import { formatUsd, formatApy } from '@/lib/utils';
 import { useLanguage } from '@/lib/useLanguage';
+import Image from 'next/image';
 
 export const estimateOppurtunities = ({
     apy,
@@ -86,7 +87,7 @@ export const SavingsOpportunites = ({
                                 className={`w-full flex items-center justify-between text-xs px-3 py-2.5 transition-colors duration-150 ${i > 0 ? 'border-t border-white/[0.03]' : ''} ${onSelectToken ? 'hover:bg-white/[0.03] cursor-pointer' : ''}`}
                             >
                                 <div className="flex items-center gap-2">
-                                    <img src={token.logoUri} alt={token.symbol} className="w-5 h-5 rounded-full" />
+                                    <Image height={20} width={20} src={token.logoUri} alt={token.symbol} className="w-5 h-5 rounded-full" />
                                     <span className="text-text-secondary font-medium">{token.symbol}</span>
                                     <span className="text-foreground font-mono">{formatUsd(token.usd)}</span>
                                 </div>
