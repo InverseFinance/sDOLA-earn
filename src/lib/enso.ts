@@ -12,6 +12,24 @@ function getClient(): EnsoClient {
   return client;
 }
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1500;
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt < MAX_RETRIES - 1) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      }
+    }
+  }
+  throw lastError;
+}
+
 export async function fetchEnsoRoute(params: {
   fromAddress: `0x${string}`;
   tokenIn: `0x${string}`;
@@ -20,7 +38,7 @@ export async function fetchEnsoRoute(params: {
   slippage?: string;
 }) {
   const enso = getClient();
-  return enso.getRouteData({
+  return withRetry(() => enso.getRouteData({
     chainId: 1,
     fromAddress: params.fromAddress,
     receiver: params.fromAddress,
@@ -29,7 +47,7 @@ export async function fetchEnsoRoute(params: {
     tokenOut: [params.tokenOut ?? SDOLA_ADDRESS],
     amountIn: [params.amountIn],
     slippage: params.slippage ?? '10',
-  });
+  }));
 }
 
 export async function fetchEnsoApproval(params: {
@@ -38,19 +56,19 @@ export async function fetchEnsoApproval(params: {
   amount: string;
 }) {
   const enso = getClient();
-  return enso.getApprovalData({
+  return withRetry(() => enso.getApprovalData({
     fromAddress: params.fromAddress,
     tokenAddress: params.tokenAddress,
     chainId: 1,
     amount: params.amount,
-  });
+  }));
 }
 
 export async function fetchEnsoBalances(address: `0x${string}`) {
   const enso = getClient();
-  return enso.getBalances({
+  return withRetry(() => enso.getBalances({
     chainId: 1,
     eoaAddress: address,
     useEoa: true,
-  });
+  }));
 }
