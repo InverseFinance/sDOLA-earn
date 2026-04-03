@@ -15,6 +15,17 @@ export interface SupportedToken {
 export const ETH_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
 export const DOLA_TOKEN_ADDRESS = '0x865377367054516e17014CcdED1e7d814EDC9ce4' as const;
 
+export const DOLA_TOKEN = {
+  address: DOLA_TOKEN_ADDRESS,
+  symbol: 'DOLA',
+  name: 'Dola USD Stablecoin',
+  decimals: 18,
+  logoUri: 'https://assets.coingecko.com/coins/images/14287/standard/dola.png?1696513984',
+  isIdleStable: true,
+  isStablish: true,
+  coingeckoId: 'dola-usd',
+};
+
 export const SUPPORTED_TOKENS: SupportedToken[] = [
   {
     address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -26,16 +37,7 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     isStablish: true,
     coingeckoId: 'usd-coin',
   },
-  {
-    address: DOLA_TOKEN_ADDRESS,
-    symbol: 'DOLA',
-    name: 'DOLA',
-    decimals: 18,
-    logoUri: 'https://assets.coingecko.com/coins/images/14287/standard/dola.png?1696513984',
-    isIdleStable: true,
-    isStablish: true,
-    coingeckoId: 'dola-usd',
-  },
+  DOLA_TOKEN,
   {
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     symbol: 'USDT',

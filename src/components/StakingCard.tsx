@@ -5,8 +5,8 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { parseUnits, formatUnits, maxUint256 } from 'viem';
 import { useConnectModal, useAddRecentTransaction } from '@rainbow-me/rainbowkit';
 import { DOLA_ADDRESS, SDOLA_ADDRESS, ERC20_ABI, ERC4626_ABI } from '@/lib/contracts';
-import { formatBalance, formatTokenAmount } from '@/lib/utils';
-import { SUPPORTED_TOKENS, isDola, isNativeEth, type SupportedToken } from '@/lib/tokens';
+import { formatBalance, formatTokenAmount, formatUsd } from '@/lib/utils';
+import { SUPPORTED_TOKENS, isDola, isNativeEth, DOLA_TOKEN, type SupportedToken } from '@/lib/tokens';
 import { TokenSelector } from './TokenSelector';
 import { useEnsoRoute } from '@/hooks/useEnsoRoute';
 import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
@@ -370,6 +370,18 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   const balanceDisplay = activeTab === 'stake' ? stakeBalanceDisplay : unstakeBalanceDisplay;
   const balanceLabel = activeTab === 'stake' ? selectedToken.symbol : unstakeBalanceLabel;
 
+  const inputUsd = (() => {
+    const qty = parseFloat(amount);
+    if (!qty || qty <= 0) return 0;
+    if (activeTab === 'stake') {
+      const price = isDola(selectedToken.address)
+        ? (stakingData?.dolaPriceUsd || 1)
+        : (selectedToken.price || 0);
+      return qty * price;
+    }
+    return qty * (stakingData?.dolaPriceUsd || 1);
+  })();
+
   // ── Handlers ──
 
   function handleMax() {
@@ -615,7 +627,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           <div className="flex items-center gap-3">
             <input
               type="number"
-              placeholder={activeTab === 'stake' ? '0.00' : '0.00 DOLA'}
+              placeholder={'0.00'}
               value={amount}
               onChange={(e) => { setAmount(e.target.value); setIsMaxWithdraw(false); }}
               disabled={ensoStep !== 'idle'}
@@ -629,22 +641,35 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
                 balances={tokenBalances}
               />
             ) : (
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-text-muted text-[10px] uppercase tracking-[0.1em]">{t.toLabel}:</span>
-                <TokenSelector
-                  tokens={sortedTokens}
-                  selected={withdrawDestToken}
-                  onSelect={(t) => {
-                    gaEvent({ action: 'select_withdraw_dest', params: { category: 'staking', label: t.symbol, value: 0 } });
-                    setWithdrawDestToken(t);
-                    setAmount('');
-                    setIsMaxWithdraw(false);
-                  }}
-                  balances={tokenBalances}
-                />
+              <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.06] rounded-xl px-3 py-2 shrink-0">
+                <img src={DOLA_TOKEN.logoUri} alt={DOLA_TOKEN.symbol} width={20} height={20} className="rounded-full" />
+                <span className="text-sm font-semibold text-foreground">DOLA</span>
               </div>
             )}
           </div>
+
+          {/* USD worth of input */}
+          {inputUsd > 0 && (
+            <div className="mt-1.5 text-text-muted text-xs font-mono">
+              ≈{formatUsd(inputUsd)}
+            </div>
+          )}
+
+          {/* Withdraw destination — inside the input zone */}
+          {activeTab === 'unstake' && (
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.04]">
+              <span className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">{t.toLabel}</span>
+              <TokenSelector
+                tokens={sortedTokens}
+                selected={withdrawDestToken}
+                onSelect={(t) => {
+                  gaEvent({ action: 'select_withdraw_dest', params: { category: 'staking', label: t.symbol, value: 0 } });
+                  setWithdrawDestToken(t);
+                }}
+                balances={tokenBalances}
+              />
+            </div>
+          )}
         </div>
 
         {/* Preview — Deposit */}
