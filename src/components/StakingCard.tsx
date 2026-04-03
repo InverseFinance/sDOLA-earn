@@ -51,7 +51,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   const [maxAmounts, setMaxAmounts] = useState<Record<string, string>>({});
   const [ensoStep, setEnsoStep] = useState<EnsoStep>('idle');
   const [withdrawDestToken, setWithdrawDestToken] = useState<SupportedToken>(() => {
-    return withDefaultPrices(SUPPORTED_TOKENS, tokenPrices).find(t => isDola(t.address))!;
+    return withDefaultPrices(SUPPORTED_TOKENS, tokenPrices).find(t => t.symbol === 'USDC')!;
   });
   const [isMaxWithdraw, setIsMaxWithdraw] = useState(false);
 
@@ -551,10 +551,6 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               setSelectedToken(getDefaultToken(sortedTokens));
               setEnsoStep('idle');
               setIsMaxWithdraw(false);
-              if (tab === 'unstake') {
-                const dola = sortedTokens.find(t => isDola(t.address)) ?? sortedTokens[0];
-                setWithdrawDestToken(dola);
-              }
             }}
             className={`cursor-pointer flex-1 py-3.5 text-sm font-medium tracking-wide transition-all duration-200 relative ${activeTab === tab
               ? 'text-foreground'
