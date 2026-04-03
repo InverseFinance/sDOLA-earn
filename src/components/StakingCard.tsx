@@ -408,12 +408,23 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
 
   function handleRedeem() {
     if (!address) return;
-    redeem({
-      address: SDOLA_ADDRESS,
-      abi: ERC4626_ABI,
-      functionName: 'redeem',
-      args: [sdolaWithdrawBN, address, address],
-    });
+    if (isMaxWithdraw) {
+      // Burn full sDOLA balance to avoid dust
+      redeem({
+        address: SDOLA_ADDRESS,
+        abi: ERC4626_ABI,
+        functionName: 'redeem',
+        args: [sdolaWithdrawBN, address, address],
+      });
+    } else {
+      // Exact DOLA amount out
+      redeem({
+        address: SDOLA_ADDRESS,
+        abi: ERC4626_ABI,
+        functionName: 'withdraw',
+        args: [parsedAmount, address, address],
+      });
+    }
   }
 
   async function handleEnsoDeposit() {
@@ -702,7 +713,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">{t.youWillReceive}</span>
                 <span className="font-mono text-foreground">
-                  ~{formatBalance(isMaxWithdraw ? (sdolaBalanceInDola ?? parsedAmount) : parsedAmount, 18, 2)} DOLA
+                  {isMaxWithdraw ? `~${formatBalance(sdolaBalanceInDola ?? parsedAmount, 18, 2)}` : formatBalance(parsedAmount, 18, 2)} DOLA
                 </span>
               </div>
             )}
