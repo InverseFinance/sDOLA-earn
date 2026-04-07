@@ -4,16 +4,16 @@ import { createPortal } from 'react-dom';
 const texts = [
   {
     "title": "Introduction and Agreement",
-    "text": "These Terms of Use constitute a binding agreement between you and the open-source contributors and community members of Inverse Finance who maintain the Interface at www.inverse.finance"
+    "text": `These Terms of Use ("Terms") constitute a binding agreement between you ("User" or "you") and the open-source contributors and community members (collectively, "Inverse Finance" "we," or the "DAO") who maintain the web interface located at earn.inverse.finance (the "Interface").`
   },
   {
     "warning": "By accessing the Interface, you acknowledge and agree that:"
   },
   {
     "list": [
-      "Non-Custodial: You retain full control of your assets and private keys.",
-      "No Fiduciary Duties: No contributor or participant owes you fiduciary obligations.",
-      "Assumption of Risk: You accept risks including smart contract bugs and market volatility."
+      "It is non-Custodial: You retain full control of your assets and private keys.",
+      "There are no Fiduciary Duties: The contributors, developers, governance participants, and token holders associated with f(x) Protocol do not owe you any fiduciary duty. Nothing in the Interface or Protocol creates any relationship of trust, agency, advisory, or fiduciary obligation.",
+      "Assumption of Risk: You understand the inherent risks of DeFi, including smart contract bugs and market volatility."
     ]
   },
   {
@@ -43,20 +43,22 @@ const texts = [
   {
     "title": "The Interface vs. The Protocol",
     "subtitle": "The Protocol",
-    "text": "Immutable smart contracts deployed on public blockchains that cannot be paused or reversed except via governance mechanisms."
+    "text": `A set of immutable smart contracts running on a public blockchain. The DAO cannot "pause" or "reverse" the Protocol once deployed (unless specific governance parameters allow, which are also public).`
   },
   {
     "subtitle": "The Interface",
-    "text": "A graphical tool to help users interact with the Protocol. Direct interaction without the Interface is possible."
+    "text": "The website you are currently viewing. It is merely a visualizer that helps you format transactions. You can interact with the Protocol directly (e.g., via an explorer) without this Interface."
   },
   {
     "subtitle": "Third-Party Dependencies",
+    "text": "Third-Party Dependencies: The Interface and the Protocol may rely on third-party services or infrastructure, including but not limited to wallet providers, blockchain nodes, indexing services, oracle providers, or other external software. We do not control and are not responsible for the operation, availability, accuracy, or security of such third-party services.",
     "list": [
       "Wallet providers",
       "Blockchain nodes",
       "Indexing services",
       "Oracle providers",
-      "External infrastructure"
+      "External infrastructure",
+      "Swap routing providers",
     ]
   },
   {
@@ -82,7 +84,7 @@ const texts = [
   },
   {
     "title": "No Warranties",
-    "warning": "The Interface is provided \"AS IS\" and \"AS AVAILABLE\" without warranties of any kind."
+    "warning": `THE INTERFACE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF ANY KIND. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT GUARANTEE THAT THE INTERFACE WILL BE ERROR-FREE OR UNINTERRUPTED.`,
   },
   {
     "list": [
