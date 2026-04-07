@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+
 const texts = [
   {
     "title": "Introduction and Agreement",
@@ -182,3 +185,68 @@ export const TermsOfServices = ({
     </div>
   </div>
 }
+
+export const TOS_STORAGE_KEY = 'tos-accepted';
+
+export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) => {
+  const [checked, setChecked] = useState(false);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="card-shine relative bg-card-bg border border-white/[0.05] rounded-2xl p-6 w-full max-w-lg flex flex-col gap-4 max-h-[90vh]">
+        <div className="flex items-center justify-between">
+          <p className="text-xl font-extrabold">Terms of Services</p>
+          <button
+            onClick={onClose}
+            className="text-text-muted hover:text-foreground transition-colors cursor-pointer text-lg leading-none"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex flex-col gap-0 flex-1 min-h-0 pr-1" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+          {texts.map((v, i) => (
+            <span key={i}>
+              {!!v.title && <Title text={v.title} />}
+              {!!v.subtitle && <Subtitle text={v.subtitle} />}
+              {!!v.text && <Text text={v.text} />}
+              {!!v.warning && <Warning text={v.warning} />}
+              {!!v.list && <List list={v.list} />}
+            </span>
+          ))}
+        </div>
+
+        <div className="border-t border-white/[0.05] pt-4 flex flex-col gap-3">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setChecked(v => !v)}>
+            <input
+              id="tos-modal-checkbox"
+              type="checkbox"
+              className="cursor-pointer w-4 h-4 accent-orange-400"
+              checked={checked}
+              onChange={e => setChecked(e.target.checked)}
+              onClick={e => e.stopPropagation()}
+            />
+            <label className="cursor-pointer text-sm select-none">
+              I accept the Terms of Services
+            </label>
+          </div>
+          <button
+            disabled={!checked}
+            onClick={onAccept}
+            className={`w-full py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${
+              checked
+                ? 'btn-primary text-[#1A0E00] cursor-pointer'
+                : 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
+            }`}
+          >
+            Agree & Continue
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};

@@ -17,6 +17,7 @@ import { gaEvent } from '@/lib/analytics';
 import { addTxToast } from '@/lib/toastStore';
 import { useLanguage } from '@/lib/useLanguage';
 import { type TokenPrices } from '@/lib/fetchTokenPrices';
+import { TermsModal, TOS_STORAGE_KEY } from './TermsOfServices';
 
 type Tab = 'stake' | 'unstake';
 type EnsoStep = 'idle' | 'approving' | 'routing';
@@ -68,6 +69,8 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   const [slippageSetting, setSlippageSetting] = useState<SlippageSetting>('auto');
   const [showSlippage, setShowSlippage] = useState(false);
   const slippageRef = useRef<HTMLDivElement>(null);
+  const [showTosModal, setShowTosModal] = useState(false);
+  const pendingActionRef = useRef<(() => void) | null>(null);
 
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
@@ -550,6 +553,26 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
     });
   }
 
+  // ── TOS gate ──
+
+  function withTosCheck(fn: () => void): () => void {
+    return () => {
+      if (typeof window !== 'undefined' && localStorage.getItem(TOS_STORAGE_KEY) === 'true') {
+        fn();
+      } else {
+        pendingActionRef.current = fn;
+        setShowTosModal(true);
+      }
+    };
+  }
+
+  function handleTosAccept() {
+    if (typeof window !== 'undefined') localStorage.setItem(TOS_STORAGE_KEY, 'true');
+    setShowTosModal(false);
+    pendingActionRef.current?.();
+    pendingActionRef.current = null;
+  }
+
   // ── Button config ──
 
   function getButtonConfig(): { text: string; onClick: () => void; disabled: boolean } {
@@ -566,12 +589,12 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           return { text: t.approving, onClick: () => { }, disabled: true };
         if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
           return { text: t.depositing, onClick: () => { }, disabled: true };
-        return { text: t.depositToken.replace('{symbol}', selectedToken.symbol), onClick: handleEnsoDeposit, disabled: false };
+        return { text: t.depositToken.replace('{symbol}', selectedToken.symbol), onClick: withTosCheck(handleEnsoDeposit), disabled: false };
       } else {
         if (isApproving || isApproveConfirming) return { text: t.approving, onClick: () => { }, disabled: true };
-        if (needsApproval) return { text: t.approveDola, onClick: handleApprove, disabled: false };
+        if (needsApproval) return { text: t.approveDola, onClick: withTosCheck(handleApprove), disabled: false };
         if (isDepositing || isDepositConfirming) return { text: t.depositing, onClick: () => { }, disabled: true };
-        return { text: t.depositDola, onClick: handleDeposit, disabled: false };
+        return { text: t.depositDola, onClick: withTosCheck(handleDeposit), disabled: false };
       }
     }
 
@@ -585,16 +608,18 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
         return { text: t.approving, onClick: () => { }, disabled: true };
       if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
         return { text: t.withdrawing, onClick: () => { }, disabled: true };
-      return { text: t.withdrawToToken.replace('{symbol}', withdrawDestToken.symbol), onClick: handleEnsoWithdraw, disabled: false };
+      return { text: t.withdrawToToken.replace('{symbol}', withdrawDestToken.symbol), onClick: withTosCheck(handleEnsoWithdraw), disabled: false };
     }
 
     if (isRedeeming || isRedeemConfirming) return { text: t.withdrawing, onClick: () => { }, disabled: true };
-    return { text: t.withdrawToDola, onClick: handleRedeem, disabled: false };
+    return { text: t.withdrawToDola, onClick: withTosCheck(handleRedeem), disabled: false };
   }
 
   const btn = getButtonConfig();
 
   return (
+    <>
+    {showTosModal && <TermsModal onAccept={handleTosAccept} onClose={() => setShowTosModal(false)} />}
     <div className="card-shine relative bg-card-bg border border-white/[0.05] rounded-2xl backdrop-blur-sm">
 
       {/* Tabs */}
@@ -850,5 +875,6 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
 
       </div>
     </div>
+    </>
   );
 }
