@@ -140,8 +140,8 @@ const Text = ({ text }) => {
 const List = ({ list }) => {
   return <ul className="py-1">
     {list.map((v, i) => {
-      return <li>
-        <Text key={i} text={`- ${v}`} />
+      return <li key={i}>
+        <Text text={`- ${v}`} />
       </li>
     })}
   </ul>
