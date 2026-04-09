@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useLanguage } from '@/lib/useLanguage';
 
-const texts = [
+
+export const TOS_VERSION ='1.0.0';
+export const TOS_TEXTS = [
   {
     "title": "Introduction and Agreement",
     "text": `These Terms of Services ("Terms") constitute a binding agreement between you ("User" or "you") and the open-source contributors and community members (collectively, "Inverse Finance" "we," or the "DAO") who maintain the web interface located at earn.inverse.finance (the "Interface").`
@@ -192,6 +195,27 @@ export const TOS_STORAGE_KEY = 'tos-accepted';
 
 export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) => {
   const [checked, setChecked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { lang } = useLanguage();
+
+  async function handleAgree() {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch('https://inverse.finance/api/tos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms: TOS_TEXTS, lang, version: TOS_VERSION }),
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      onAccept();
+    } catch (e: any) {
+      setSubmitError(e?.message ?? 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   if (typeof document === 'undefined') return null;
 
@@ -202,7 +226,8 @@ export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClos
           <p className="text-xl font-extrabold">Terms of Services</p>
           <button
             onClick={onClose}
-            className="text-text-muted hover:text-foreground transition-colors cursor-pointer text-lg leading-none"
+            disabled={isSubmitting}
+            className="text-text-muted hover:text-foreground transition-colors cursor-pointer text-lg leading-none disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Close"
           >
             ✕
@@ -210,7 +235,7 @@ export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClos
         </div>
 
         <div className="overflow-y-auto flex flex-col gap-0 flex-1 min-h-0 pr-1" style={{ maxHeight: 'calc(90vh - 200px)' }}>
-          {texts.map((v, i) => (
+          {TOS_TEXTS.map((v, i) => (
             <span key={i}>
               {!!v.title && <Title text={v.title} />}
               {!!v.subtitle && <Subtitle text={v.subtitle} />}
@@ -222,7 +247,7 @@ export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClos
         </div>
 
         <div className="border-t border-white/[0.05] pt-4 flex flex-col gap-3">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setChecked(v => !v)}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => !isSubmitting && setChecked(v => !v)}>
             <input
               id="tos-modal-checkbox"
               type="checkbox"
@@ -230,20 +255,27 @@ export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClos
               checked={checked}
               onChange={e => setChecked(e.target.checked)}
               onClick={e => e.stopPropagation()}
+              disabled={isSubmitting}
             />
             <label className="cursor-pointer text-sm select-none">
               I accept the Terms of Services
             </label>
           </div>
+          {submitError && (
+            <p className="text-sm text-red-400 text-center">{submitError}</p>
+          )}
           <button
-            disabled={!checked}
-            onClick={onAccept}
+            disabled={!checked || isSubmitting}
+            onClick={handleAgree}
             className={`w-full py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 ${
-              checked
+              checked && !isSubmitting
                 ? 'btn-primary text-[#1A0E00] cursor-pointer'
                 : 'bg-white/[0.04] text-text-muted cursor-not-allowed border border-white/[0.04]'
             }`}
           >
+            {isSubmitting && (
+              <span className="inline-block w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin mr-2 align-middle" />
+            )}
             Agree & Continue
           </button>
         </div>
