@@ -203,7 +203,7 @@ export const TermsModal = ({ onAccept, onClose }: { onAccept: () => void; onClos
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const res = await fetch('https://inverse.finance/api/tos', {
+      const res = await fetch('https://www.inverse.finance/api/tos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ terms: TOS_TEXTS, lang, version: TOS_VERSION }),
