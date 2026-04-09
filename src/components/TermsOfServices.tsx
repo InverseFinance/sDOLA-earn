@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 const texts = [
   {
     "title": "Introduction and Agreement",
-    "text": `These Terms of Use ("Terms") constitute a binding agreement between you ("User" or "you") and the open-source contributors and community members (collectively, "Inverse Finance" "we," or the "DAO") who maintain the web interface located at earn.inverse.finance (the "Interface").`
+    "text": `These Terms of Services ("Terms") constitute a binding agreement between you ("User" or "you") and the open-source contributors and community members (collectively, "Inverse Finance" "we," or the "DAO") who maintain the web interface located at earn.inverse.finance (the "Interface").`
   },
   {
     "warning": "By accessing the Interface, you acknowledge and agree that:"
@@ -12,7 +12,7 @@ const texts = [
   {
     "list": [
       "It is non-Custodial: You retain full control of your assets and private keys.",
-      "There are no Fiduciary Duties: The contributors, developers, governance participants, and token holders associated with f(x) Protocol do not owe you any fiduciary duty. Nothing in the Interface or Protocol creates any relationship of trust, agency, advisory, or fiduciary obligation.",
+      "There are no Fiduciary Duties: The contributors, developers, governance participants, and token holders associated with Inverse Finance do not owe you any fiduciary duty. Nothing in the Interface or Protocol creates any relationship of trust, agency, advisory, or fiduciary obligation.",
       "Assumption of Risk: You understand the inherent risks of DeFi, including smart contract bugs and market volatility."
     ]
   },
@@ -47,11 +47,11 @@ const texts = [
   },
   {
     "subtitle": "The Interface",
-    "text": "The website you are currently viewing. It is merely a visualizer that helps you format transactions. You can interact with the Protocol directly (e.g., via an explorer) without this Interface."
+    "text": "The website you are currently viewing. It is merely a user-interface that helps you format transactions. You can interact with the Protocol directly (e.g., via an explorer) without this Interface."
   },
   {
     "subtitle": "Third-Party Dependencies",
-    "text": "Third-Party Dependencies: The Interface and the Protocol may rely on third-party services or infrastructure, including but not limited to wallet providers, blockchain nodes, indexing services, oracle providers, or other external software. We do not control and are not responsible for the operation, availability, accuracy, or security of such third-party services.",
+    "text": "Third-Party Dependencies: The Interface and the Protocol may rely on third-party services or infrastructure. We do not control and are not responsible for the operation, availability, accuracy, or security of such third-party services, examples:",
     "list": [
       "Wallet providers",
       "Blockchain nodes",
@@ -75,7 +75,8 @@ const texts = [
       "Smart contract vulnerabilities and loss of funds",
       "No insurance coverage",
       "Regulatory risks",
-      "Irreversible blockchain transactions"
+      "Irreversible blockchain transactions",
+      "Depeg of DOLA stablecoin",
     ]
   },
   {
@@ -90,7 +91,6 @@ const texts = [
     "list": [
       "No guarantee of merchantability",
       "No guarantee of fitness for a particular purpose",
-      "No guarantee of non-infringement",
       "No guarantee of uninterrupted or error-free service"
     ]
   },
