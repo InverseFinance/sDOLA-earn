@@ -5,12 +5,14 @@ import Image from 'next/image';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction, useBalance } from 'wagmi';
 import { parseUnits, formatUnits, maxUint256 } from 'viem';
 import { useConnectModal, useAddRecentTransaction } from '@rainbow-me/rainbowkit';
+import { readContract } from '@wagmi/core';
 import { DOLA_ADDRESS, SDOLA_ADDRESS, ERC20_ABI, ERC4626_ABI } from '@/lib/contracts';
 import { formatBalance, formatTokenAmount, formatUsd } from '@/lib/utils';
 import { SUPPORTED_TOKENS, isDola, isNativeEth, DOLA_TOKEN, type SupportedToken } from '@/lib/tokens';
 import { TokenSelector } from './TokenSelector';
 import { useEnsoRoute } from '@/hooks/useEnsoRoute';
 import { fetchEnsoApproval, fetchEnsoBalances } from '@/lib/enso';
+import { config } from '@/wagmi';
 import { SavingsOpportunites, SelectedOpportunity } from './SavingsOpportunities';
 import { StakingData } from '@/pages';
 import { gaEvent } from '@/lib/analytics';
@@ -491,7 +493,31 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
       return;
     }
 
-    // ERC20: check if approval is needed
+    // ERC20: check on-chain allowance against the Enso router
+    const spender = ensoDepositRoute.tx.to as `0x${string}`;
+    try {
+      const currentAllowance = await readContract(config, {
+        address: selectedToken.address,
+        abi: ERC20_ABI,
+        functionName: 'allowance',
+        args: [address, spender],
+      }) as bigint;
+
+      if (currentAllowance >= parsedAmount) {
+        // Sufficient allowance — skip approval, send route directly
+        setEnsoStep('routing');
+        sendRouteTx({
+          to: ensoDepositRoute.tx.to as `0x${string}`,
+          data: ensoDepositRoute.tx.data as `0x${string}`,
+          value: BigInt(ensoDepositRoute.tx.value || '0'),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error('Allowance check failed:', err);
+    }
+
+    // Insufficient allowance — fetch approval tx from Enso
     try {
       const isUsdt = selectedToken.address.toLowerCase() === '0xdac17f958d2ee523a2206206994597c13d831ec7';
       const approval = await fetchEnsoApproval({
@@ -510,10 +536,10 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
         return;
       }
     } catch (err) {
-      console.error('Approval check failed:', err);
+      console.error('Approval request failed:', err);
     }
 
-    // Already approved — send route directly
+    // Fallback — send route directly
     setEnsoStep('routing');
     sendRouteTx({
       to: ensoDepositRoute.tx.to as `0x${string}`,
@@ -525,6 +551,31 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
   async function handleEnsoWithdraw() {
     if (!address || !ensoWithdrawRoute.tx) return;
 
+    // Check on-chain sDOLA allowance against the Enso router
+    const spender = ensoWithdrawRoute.tx.to as `0x${string}`;
+    try {
+      const currentAllowance = await readContract(config, {
+        address: SDOLA_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: 'allowance',
+        args: [address, spender],
+      }) as bigint;
+
+      if (currentAllowance >= sdolaWithdrawBN) {
+        // Sufficient allowance — skip approval, send route directly
+        setEnsoStep('routing');
+        sendRouteTx({
+          to: ensoWithdrawRoute.tx.to as `0x${string}`,
+          data: ensoWithdrawRoute.tx.data as `0x${string}`,
+          value: BigInt(ensoWithdrawRoute.tx.value || '0'),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error('Allowance check failed:', err);
+    }
+
+    // Insufficient allowance — fetch approval tx from Enso
     try {
       const approval = await fetchEnsoApproval({
         fromAddress: address,
@@ -542,9 +593,10 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
         return;
       }
     } catch (err) {
-      console.error('Withdrawal approval check failed:', err);
+      console.error('Withdrawal approval request failed:', err);
     }
 
+    // Fallback — send route directly
     setEnsoStep('routing');
     sendRouteTx({
       to: ensoWithdrawRoute.tx.to as `0x${string}`,
@@ -814,7 +866,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
                 ) : ensoDepositRoute.amountOut ? (
                   <div className="flex justify-between text-sm">
                     <span className="text-text-muted">{t.estimatedOutput}</span>
-                    <span className="font-mono text-foreground">~{formatTokenAmount(ensoDepositRoute.amountOut, 18)} sDOLA</span>
+                    <span className="font-mono text-foreground">≈{formatTokenAmount(ensoDepositRoute.amountOut, 18)} sDOLA</span>
                   </div>
                 ) : ensoDepositRoute.error ? (
                   <div className="text-sm text-red-400 text-center">{ensoDepositRoute.error}</div>
@@ -835,11 +887,11 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
                   <span className="text-text-muted">{t.estimatedOutput}</span>
                   <div className="text-right">
                     <div className="font-mono text-foreground">
-                      ~{formatTokenAmount(ensoWithdrawRoute.amountOut, withdrawDestToken.decimals)} {withdrawDestToken.symbol}
+                      ≈{formatTokenAmount(ensoWithdrawRoute.amountOut, withdrawDestToken.decimals)} {withdrawDestToken.symbol}
                     </div>
                     {withdrawDestToken.price ? (
                       <div className="text-text-muted text-xs">
-                        ~${(Number(formatUnits(BigInt(ensoWithdrawRoute.amountOut), withdrawDestToken.decimals)) * withdrawDestToken.price).toFixed(2)}
+                        ≈${(Number(formatUnits(BigInt(ensoWithdrawRoute.amountOut), withdrawDestToken.decimals)) * withdrawDestToken.price).toFixed(2)}
                       </div>
                     ) : null}
                   </div>
@@ -851,7 +903,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">{t.youWillReceive}</span>
                 <span className="font-mono text-foreground">
-                  {isMaxWithdraw ? `~${formatBalance(sdolaBalanceInDola ?? parsedAmount, 18, 2)}` : formatBalance(parsedAmount, 18, 2)} DOLA
+                  {isMaxWithdraw ? `≈${formatBalance(sdolaBalanceInDola ?? parsedAmount, 18, 2)}` : formatBalance(parsedAmount, 18, 2)} DOLA
                 </span>
               </div>
             )}
