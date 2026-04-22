@@ -65,7 +65,7 @@ export default function Home({ stakingData, chartData, tokenPrices }: InferGetSe
   return (
     <div className="page-bg dot-grid flex flex-col min-h-screen">
       <Header />
-      <main className="relative z-10 flex-1 px-4 py-10 max-w-lg mx-auto w-full space-y-5">
+      <main className="relative z-10 flex-1 px-4 py-10 max-w-xl mx-auto w-full space-y-5">
 
         <div className="text-center space-y-2 pt-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
