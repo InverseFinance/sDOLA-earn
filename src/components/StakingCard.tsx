@@ -641,7 +641,7 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           return { text: t.approving, onClick: () => { }, disabled: true };
         if (ensoStep === 'routing' || isEnsoRoutePending || isEnsoRouteConfirming)
           return { text: t.depositing, onClick: () => { }, disabled: true };
-        return { text: t.depositToken.replace('{symbol}', selectedToken.symbol), onClick: withTosCheck(handleEnsoDeposit), disabled: false };
+        return { text: t.swapTokenToSdola.replace('{symbol}', selectedToken.symbol), onClick: withTosCheck(handleEnsoDeposit), disabled: false };
       } else {
         if (isApproving || isApproveConfirming) return { text: t.approving, onClick: () => { }, disabled: true };
         if (needsApproval) return { text: t.approveDola, onClick: withTosCheck(handleApprove), disabled: false };
@@ -774,7 +774,9 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           {/* Label + balance row */}
           <div className="flex items-center justify-between mb-3">
             <span className="text-text-muted text-[10px] uppercase tracking-[0.15em] font-medium">
-              {activeTab === 'stake' ? t.youDeposit : t.youWithdraw}
+              {activeTab === 'stake'
+                ? (usingEnsoDeposit ? t.sellToken : t.youDeposit)
+                : t.youWithdraw}
             </span>
             {isConnected && (
               <button

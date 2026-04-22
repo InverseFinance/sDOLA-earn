@@ -29,6 +29,8 @@ export interface Translations {
   approveDola: string;
   depositDola: string;
   depositToken: string; // contains {symbol}
+  sellToken: string; // input label for non-DOLA deposit
+  swapTokenToSdola: string; // contains {symbol} — input label for non-DOLA deposit
   withdrawing: string;
   withdrawToDola: string;
   withdrawToToken: string; // contains {symbol}
@@ -95,6 +97,8 @@ const en: Translations = {
   approveDola: 'Approve DOLA',
   depositDola: 'Deposit DOLA',
   depositToken: 'Deposit {symbol}',
+  sellToken: 'You Sell',
+  swapTokenToSdola: 'Swap {symbol} to sDOLA',
   withdrawing: 'Withdrawing...',
   withdrawToDola: 'Withdraw to DOLA',
   withdrawToToken: 'Withdraw to {symbol}',
@@ -154,6 +158,8 @@ const fr: Translations = {
   approveDola: 'Approuver DOLA',
   depositDola: 'Déposer DOLA',
   depositToken: 'Déposer {symbol}',
+  sellToken: 'Vous vendez',
+  swapTokenToSdola: 'Échanger {symbol} en sDOLA',
   withdrawing: 'Retrait en cours...',
   withdrawToDola: 'Retirer en DOLA',
   withdrawToToken: 'Retirer en {symbol}',
@@ -213,6 +219,8 @@ const zh: Translations = {
   approveDola: '授权 DOLA',
   depositDola: '存入 DOLA',
   depositToken: '存入 {symbol}',
+  sellToken: '您卖出',
+  swapTokenToSdola: '将 {symbol} 兑换为 sDOLA',
   withdrawing: '提取中...',
   withdrawToDola: '提取为 DOLA',
   withdrawToToken: '提取为 {symbol}',
@@ -272,6 +280,8 @@ const ko: Translations = {
   approveDola: 'DOLA 승인',
   depositDola: 'DOLA 예치',
   depositToken: '{symbol} 예치',
+  sellToken: '매도',
+  swapTokenToSdola: '{symbol}을 sDOLA로 스왑',
   withdrawing: '출금 중...',
   withdrawToDola: 'DOLA로 출금',
   withdrawToToken: '{symbol}로 출금',
@@ -331,6 +341,8 @@ const ja: Translations = {
   approveDola: 'DOLA を承認',
   depositDola: 'DOLA を預入',
   depositToken: '{symbol} を預入',
+  sellToken: '売却額',
+  swapTokenToSdola: '{symbol} を sDOLA にスワップ',
   withdrawing: '引出中...',
   withdrawToDola: 'DOLA で引出',
   withdrawToToken: '{symbol} で引出',
@@ -390,6 +402,8 @@ const es: Translations = {
   approveDola: 'Aprobar DOLA',
   depositDola: 'Depositar DOLA',
   depositToken: 'Depositar {symbol}',
+  sellToken: 'Usted vende',
+  swapTokenToSdola: 'Intercambiar {symbol} a sDOLA',
   withdrawing: 'Retirando...',
   withdrawToDola: 'Retirar a DOLA',
   withdrawToToken: 'Retirar a {symbol}',
@@ -449,6 +463,8 @@ const ru: Translations = {
   approveDola: 'Одобрить DOLA',
   depositDola: 'Внести DOLA',
   depositToken: 'Внести {symbol}',
+  sellToken: 'Вы продаёте',
+  swapTokenToSdola: 'Обменять {symbol} на sDOLA',
   withdrawing: 'Вывод...',
   withdrawToDola: 'Вывести в DOLA',
   withdrawToToken: 'Вывести в {symbol}',
@@ -508,6 +524,8 @@ const tr: Translations = {
   approveDola: 'DOLA onayla',
   depositDola: 'DOLA yatır',
   depositToken: '{symbol} yatır',
+  sellToken: 'Sattığınız',
+  swapTokenToSdola: "{symbol}'ı sDOLA'ya dönüştür",
   withdrawing: 'Çekiliyor...',
   withdrawToDola: "DOLA'ya çek",
   withdrawToToken: "{symbol}'ya çek",
@@ -567,6 +585,8 @@ const ar: Translations = {
   approveDola: 'الموافقة على DOLA',
   depositDola: 'إيداع DOLA',
   depositToken: 'إيداع {symbol}',
+  sellToken: 'تبيع',
+  swapTokenToSdola: 'تبديل {symbol} إلى sDOLA',
   withdrawing: 'جارٍ السحب...',
   withdrawToDola: 'السحب إلى DOLA',
   withdrawToToken: 'السحب إلى {symbol}',
