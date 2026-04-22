@@ -9,7 +9,7 @@ export function useTheme() {
 
   useEffect(() => {
     const stored = localStorage.getItem('theme') as Theme | null;
-    const initial: Theme = stored === 'light' ? 'light' : 'dark';
+    const initial: Theme = stored === 'dark' ? 'dark' : 'light';
     setThemeState(initial);
     document.documentElement.setAttribute('data-theme', initial);
   }, []);
