@@ -79,6 +79,7 @@ export interface Translations {
   showTechDetails: string;
   hideTechDetails: string;
   slippageTolerance: string;
+  poweredByEnso: string;
 }
 
 const en: Translations = {
@@ -140,6 +141,7 @@ const en: Translations = {
   showTechDetails: 'Show technical details',
   hideTechDetails: 'Hide technical details',
   slippageTolerance: 'Slippage tolerance',
+  poweredByEnso: 'Powered by Enso',
 };
 
 const fr: Translations = {
@@ -201,6 +203,7 @@ const fr: Translations = {
   showTechDetails: 'Afficher les détails techniques',
   hideTechDetails: 'Masquer les détails techniques',
   slippageTolerance: 'Tolérance au glissage',
+  poweredByEnso: 'Propulsé par Enso',
 };
 
 const zh: Translations = {
@@ -262,6 +265,7 @@ const zh: Translations = {
   showTechDetails: '显示技术详情',
   hideTechDetails: '隐藏技术详情',
   slippageTolerance: '滑点容忍度',
+  poweredByEnso: '由 Enso 提供支持',
 };
 
 const ko: Translations = {
@@ -323,6 +327,7 @@ const ko: Translations = {
   showTechDetails: '기술 세부정보 표시',
   hideTechDetails: '기술 세부정보 숨기기',
   slippageTolerance: '슬리피지 허용 범위',
+  poweredByEnso: 'Enso 제공',
 };
 
 const ja: Translations = {
@@ -384,6 +389,7 @@ const ja: Translations = {
   showTechDetails: '技術詳細を表示',
   hideTechDetails: '技術詳細を非表示',
   slippageTolerance: 'スリッページ許容度',
+  poweredByEnso: 'Enso が提供',
 };
 
 const es: Translations = {
@@ -445,6 +451,7 @@ const es: Translations = {
   showTechDetails: 'Mostrar detalles técnicos',
   hideTechDetails: 'Ocultar detalles técnicos',
   slippageTolerance: 'Tolerancia al deslizamiento',
+  poweredByEnso: 'Impulsado por Enso',
 };
 
 const ru: Translations = {
@@ -506,6 +513,7 @@ const ru: Translations = {
   showTechDetails: 'Показать технические детали',
   hideTechDetails: 'Скрыть технические детали',
   slippageTolerance: 'Допустимое проскальзывание',
+  poweredByEnso: 'Работает на Enso',
 };
 
 const tr: Translations = {
@@ -567,6 +575,7 @@ const tr: Translations = {
   showTechDetails: 'Teknik ayrıntıları göster',
   hideTechDetails: 'Teknik ayrıntıları gizle',
   slippageTolerance: 'Kayma toleransı',
+  poweredByEnso: 'Enso tarafından desteklenmektedir',
 };
 
 const ar: Translations = {
@@ -628,6 +637,7 @@ const ar: Translations = {
   showTechDetails: 'إظهار التفاصيل التقنية',
   hideTechDetails: 'إخفاء التفاصيل التقنية',
   slippageTolerance: 'هامش الانزلاق السعري',
+  poweredByEnso: 'مدعوم من Enso',
 };
 
 export const translations: Record<Lang, Translations> = {

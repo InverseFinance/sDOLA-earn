@@ -926,6 +926,11 @@ export function StakingCard({ stakingData, tokenPrices = {} }: { stakingData: St
           )}
           {btn.text}
         </button>
+          {
+            !isDola(selectedToken.address) && <p className="text-text-muted text-center text-xs">
+              {t.poweredByEnso}
+            </p>
+          }
 
       </div>
     </div>
