@@ -200,6 +200,22 @@ export const SUPPORTED_TOKENS: SupportedToken[] = [
     logoUri: 'https://assets.coingecko.com/coins/images/56069/standard/BOLD_logo.png?1748265087',
     coingeckoId: 'liquity-bold-2',
   },
+   {
+    address: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
+    symbol: 'INV',
+    name: 'Inverse DAO',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/14205/standard/inverse_finance.jpg?1696513922',
+    coingeckoId: 'inverse-finance',
+  },
+  {
+    address: '0x08d23468A467d2bb86FaE0e32F247A26C7E2e994',
+    symbol: 'sINV',
+    name: 'Staked INV',
+    decimals: 18,
+    logoUri: 'https://assets.coingecko.com/coins/images/53505/standard/sINVx512.png?1736535779',
+    coingeckoId: 'staked-inv',
+  },
 ];
 
 export function isDola(address: `0x${string}`): boolean {
