@@ -133,7 +133,7 @@ const en: Translations = {
   estApyAfterDeposit: 'Est. APY after deposit:',
   estYearlyGains: 'Est. Yearly gains:',
   documentation: 'Documentation',
-  compareYields: 'Compare Yields',
+  compareYields: 'Compare Stablecoin Yields',
   poweredBy: 'Powered by Inverse Finance',
   earnStableYieldWith: 'Earn stable yield with {token}',
   tagline: 'Automated · Non-Custodial · Stablecoin Yield',
