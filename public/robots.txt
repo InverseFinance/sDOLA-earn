@@ -56,4 +56,4 @@ Allow: /
 User-agent: MistralAI-User
 Allow: /
 
-Sitemap: https://eanr.inverse.finance/sitemap.xml
+Sitemap: https://earn.inverse.finance/sitemap.xml

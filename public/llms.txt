@@ -1,0 +1,40 @@
+# sDOLA Earn
+
+> Earn stable yield on your stablecoins with sDOLA, an ERC-4626 tokenized vault by Inverse Finance on Ethereum.
+
+## What is sDOLA?
+
+sDOLA is a yield-bearing token that represents staked DOLA in an ERC-4626 vault. Users deposit DOLA (or convert other supported tokens like USDC, USDT, DAI, FRAX) and receive sDOLA, which continuously accrues yield. The vault auto-compounds rewards, so the value of sDOLA relative to DOLA increases over time.
+
+## Key Features
+
+- **ERC-4626 Vault**: Industry-standard tokenized vault for composability across DeFi
+- **Auto-compounding yield**: Rewards accrue automatically, no manual claiming required
+- **Multi-token deposits**: Deposit DOLA directly, or zap in from USDC, USDT, DAI, FRAX, and other supported tokens via Enso
+- **Real-time earnings**: sDOLA balance shows accrued DOLA earnings in real time
+- **Non-custodial**: Users retain full control of their funds via smart contracts on Ethereum
+
+## Contracts
+
+- **sDOLA (vault)**: ERC-4626 vault token on Ethereum mainnet
+- **DOLA**: Underlying stablecoin by Inverse Finance
+
+## How It Works
+
+1. Connect an Ethereum wallet
+2. Choose a token to deposit (DOLA, USDC, USDT, DAI, FRAX, etc.)
+3. Approve and deposit — receive sDOLA in return
+4. sDOLA accrues yield automatically
+5. Withdraw at any time to redeem sDOLA for DOLA (or zap out to other tokens)
+
+## Links
+
+- Website: https://earn.inverse.finance
+- Inverse Finance: https://www.inverse.finance
+- Docs: https://docs.inverse.finance
+- Stablecoin Comparator: https://www.stableyields.info
+- DOLA Staking API: https://www.inverse.finance/api/dola-staking
+
+## Stats
+
+Live APY, projected APY, and TVL are available on the website and via the DOLA staking API.
