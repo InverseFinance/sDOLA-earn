@@ -1,6 +1,6 @@
 
 const isProd = () => {
-    return ["https://sdola.inverse.finance", "https://sdola.inverse.finance"].includes(location.origin);
+    return ["https://earn.inverse.finance", "https://sdola.inverse.finance"].includes(location.origin);
 }
 
 type GTagEvent = {
