@@ -25,6 +25,13 @@ function formatTick(timestamp: number, range: Range): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+function formatYTick(value: number, type: ChartType): string {
+  if (type === 'apy') return `${value.toFixed(0)}%`;
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
+  return `$${value.toFixed(0)}`;
+}
+
 function CustomTooltip({ active, payload, type }: any) {
   if (!active || !payload?.[0]) return null;
   const fmt = type === 'apy' ? formatApy : formatUsd;
@@ -96,7 +103,7 @@ export function HistoryChart({ data, type }: HistoryChartProps) {
       </div>
 
       <ResponsiveContainer width="100%" height={130}>
-        <AreaChart data={chartData} margin={{ top: 4, right: 2, bottom: 0, left: 0 }}>
+        <AreaChart data={chartData} margin={{ top: 4, right: 2, bottom: 0, left: type === 'tvl' ? 4 : 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%"   stopColor="#FFC042" stopOpacity={0.22} />
@@ -117,8 +124,28 @@ export function HistoryChart({ data, type }: HistoryChartProps) {
             tickLine={false}
             minTickGap={48}
           />
-          <YAxis hide domain={['auto', 'auto']} />
-
+          <YAxis
+            domain={['auto', 'auto']}
+            tickFormatter={(v) => formatYTick(v, type)}
+            tick={{ fill: '#4A5480', fontSize: 9 }}
+            axisLine={false}
+            tickLine={false}
+            width={type === 'tvl' ? 52 : 36}
+            tickCount={4}
+            yAxisId="left" 
+            orientation="left"
+          />
+          <YAxis
+            domain={['auto', 'auto']}
+            tickFormatter={(v) => formatYTick(v, type)}
+            tick={{ fill: '#4A5480', fontSize: 9 }}
+            axisLine={false}
+            tickLine={false}
+            width={type === 'tvl' ? 52 : 36}
+            tickCount={4}
+            yAxisId="right" 
+            orientation="right"
+          />
           <Tooltip
             content={<CustomTooltip type={type} />}
             cursor={{ stroke: 'rgba(255,192,66,0.18)', strokeWidth: 1 }}
@@ -131,6 +158,7 @@ export function HistoryChart({ data, type }: HistoryChartProps) {
               x={ts}
               stroke="rgba(255,255,255,0.07)"
               strokeDasharray="3 4"
+              yAxisId="left"
               label={{
                 value: String(year),
                 position: 'insideTopRight',
@@ -150,7 +178,19 @@ export function HistoryChart({ data, type }: HistoryChartProps) {
             fill={`url(#${gradientId})`}
             dot={false}
             activeDot={{ r: 3, fill: '#FFC042', strokeWidth: 0 }}
-            isAnimationActive={false}
+            isAnimationActive={true}
+            yAxisId="left"
+          />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke="#FFC042"
+            strokeWidth={1.5}
+            fill={`url(#${gradientId})`}
+            dot={false}
+            activeDot={{ r: 3, fill: '#FFC042', strokeWidth: 0 }}
+            isAnimationActive={true}
+            yAxisId="right"
           />
         </AreaChart>
       </ResponsiveContainer>
