@@ -130,7 +130,7 @@ export function HistoryChart({ data, type }: HistoryChartProps) {
             tick={{ fill: '#4A5480', fontSize: 9 }}
             axisLine={false}
             tickLine={false}
-            width={type === 'tvl' ? 52 : 36}
+            width={type === 'tvl' ? 38 : 28}
             tickCount={4}
             yAxisId="left" 
             orientation="left"
